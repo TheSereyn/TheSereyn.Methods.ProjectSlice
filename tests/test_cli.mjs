@@ -1,0 +1,116 @@
+import assert from "node:assert/strict";
+import { spawnSync } from "node:child_process";
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import path from "node:path";
+import test from "node:test";
+import { fileURLToPath } from "node:url";
+
+const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
+
+function runCli(args) {
+    return spawnSync("node", ["bin/psm.js", ...args], {
+        cwd: repoRoot,
+        encoding: "utf8"
+    });
+}
+
+test("inspect lists the bundle surface", () => {
+    const result = runCli(["inspect"]);
+    assert.equal(result.status, 0, result.stderr || result.stdout);
+    assert.match(result.stdout, /Managed assets: 7/);
+    assert.match(result.stdout, /Plan templates: 1/);
+    assert.match(result.stdout, /Instruction file: \.github\/copilot-instructions\.md \(default mode: preserve\)/);
+    assert.match(result.stdout, /\.github\/hooks/);
+    assert.match(result.stdout, /\.github\/prompts/);
+});
+
+test("init bootstraps a repository and doctor validates it", () => {
+    const sandboxRoot = mkdtempSync(path.join(tmpdir(), "psm-cli-"));
+    const target = path.join(sandboxRoot, "demo-project");
+    mkdirSync(target, { recursive: true });
+    mkdirSync(path.join(target, ".git"), { recursive: true });
+
+    const initResult = runCli(["init", target, "--name", "Demo Project"]);
+    assert.equal(initResult.status, 0, initResult.stderr || initResult.stdout);
+    assert.ok(existsSync(path.join(target, "planning", "PROJECT.md")));
+    assert.ok(existsSync(path.join(target, ".psm", "manifest.json")));
+    assert.ok(existsSync(path.join(target, "scripts", "psm", "validate_psm.py")));
+    assert.ok(existsSync(path.join(target, ".github", "hooks", "10-psm-session-start.json")));
+    assert.ok(existsSync(path.join(target, ".github", "prompts", "project-status.prompt.md")));
+
+    const projectFile = readFileSync(path.join(target, "planning", "PROJECT.md"), "utf8");
+    assert.match(projectFile, /Demo Project/);
+
+    const manifest = JSON.parse(readFileSync(path.join(target, ".psm", "manifest.json"), "utf8"));
+    assert.equal(manifest.planRoots[0].root, "planning");
+
+    const doctorResult = runCli(["doctor", target]);
+    assert.equal(doctorResult.status, 0, doctorResult.stderr || doctorResult.stdout);
+    assert.match(doctorResult.stdout, /OK  validator planning/);
+});
+
+test("init preserves an existing copilot instructions file by default", () => {
+    const sandboxRoot = mkdtempSync(path.join(tmpdir(), "psm-instructions-"));
+    const target = path.join(sandboxRoot, "existing-project");
+    mkdirSync(path.join(target, ".git"), { recursive: true });
+    mkdirSync(path.join(target, ".github"), { recursive: true });
+    writeFileSync(path.join(target, ".github", "copilot-instructions.md"), "Existing repo instructions.\n", "utf8");
+
+    const initResult = runCli(["init", target, "--name", "Existing Project"]);
+    assert.equal(initResult.status, 0, initResult.stderr || initResult.stdout);
+    assert.equal(readFileSync(path.join(target, ".github", "copilot-instructions.md"), "utf8"), "Existing repo instructions.\n");
+    assert.ok(existsSync(path.join(target, ".psm", "copilot-instructions.snippet.md")));
+    assert.match(initResult.stdout, /Manual instructions merge: \.psm\/copilot-instructions\.snippet\.md/);
+
+    const doctorResult = runCli(["doctor", target]);
+    assert.equal(doctorResult.status, 0, doctorResult.stderr || doctorResult.stdout);
+    assert.match(doctorResult.stdout, /WARN  copilot instructions merge required/);
+});
+
+test("CLI exposes status, trace, and milestone for an example fixture", () => {
+    const fixtureRoot = path.join(repoRoot, "examples", "local-first-documents");
+
+    const statusResult = runCli(["status", fixtureRoot]);
+    assert.equal(statusResult.status, 0, statusResult.stderr || statusResult.stdout);
+    assert.match(statusResult.stdout, /Project status for Local-First Documents/);
+
+    const traceResult = runCli(["trace", "S-002", fixtureRoot]);
+    assert.equal(traceResult.status, 0, traceResult.stderr || traceResult.stdout);
+    assert.match(traceResult.stdout, /Trace for S-002 — Find saved document/);
+
+    const milestoneResult = runCli(["milestone", "M-001", fixtureRoot]);
+    assert.equal(milestoneResult.status, 0, milestoneResult.stderr || milestoneResult.stdout);
+    assert.match(milestoneResult.stdout, /Milestone M-001 — M-001 — Walking Skeleton/);
+});
+
+test("init supports an alternate plan root under planning and validates it", () => {
+    const sandboxRoot = mkdtempSync(path.join(tmpdir(), "psm-plan-root-"));
+    const target = path.join(sandboxRoot, "multi-plan-project");
+    mkdirSync(path.join(target, ".git"), { recursive: true });
+
+    const initResult = runCli(["init", target, "--planning-root", "planning/site-content", "--name", "Site Content"]);
+    assert.equal(initResult.status, 0, initResult.stderr || initResult.stdout);
+    assert.ok(existsSync(path.join(target, "planning", "site-content", "PROJECT.md")));
+    assert.equal(existsSync(path.join(target, "planning", "PROJECT.md")), false);
+
+    const validateResult = runCli(["validate", target, "--planning-root", "planning/site-content", "--strict"]);
+    assert.equal(validateResult.status, 0, validateResult.stderr || validateResult.stdout);
+
+    const nextIdResult = runCli(["next-id", "slice", target, "--planning-root", "planning/site-content"]);
+    assert.equal(nextIdResult.status, 0, nextIdResult.stderr || nextIdResult.stdout);
+    assert.equal(nextIdResult.stdout.trim(), "S-002");
+});
+
+test("init supports more than one target repository in one invocation", () => {
+    const sandboxRoot = mkdtempSync(path.join(tmpdir(), "psm-multi-target-"));
+    const firstTarget = path.join(sandboxRoot, "repo-one");
+    const secondTarget = path.join(sandboxRoot, "repo-two");
+    mkdirSync(path.join(firstTarget, ".git"), { recursive: true });
+    mkdirSync(path.join(secondTarget, ".git"), { recursive: true });
+
+    const initResult = runCli(["init", firstTarget, secondTarget]);
+    assert.equal(initResult.status, 0, initResult.stderr || initResult.stdout);
+    assert.ok(existsSync(path.join(firstTarget, "planning", "PROJECT.md")));
+    assert.ok(existsSync(path.join(secondTarget, "planning", "PROJECT.md")));
+});

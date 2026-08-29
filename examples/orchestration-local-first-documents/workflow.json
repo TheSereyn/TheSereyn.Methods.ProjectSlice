@@ -1,0 +1,49 @@
+{
+    "base": "base",
+    "stages": [
+        {
+            "id": "slice-planner",
+            "overlay": "overlays/01-slice-planner",
+            "allowedChanges": [
+                "planning/INBOX.md",
+                "planning/ROADMAP.md",
+                "planning/specs/S-002-find-saved-document/design.md",
+                "planning/specs/S-002-find-saved-document/spec.md",
+                "planning/specs/S-002-find-saved-document/tasks.md"
+            ]
+        },
+        {
+            "id": "project-manager-active",
+            "overlay": "overlays/02-project-manager-active",
+            "allowedChanges": [
+                "planning/ROADMAP.md",
+                "planning/specs/S-002-find-saved-document/spec.md"
+            ]
+        },
+        {
+            "id": "implementer",
+            "overlay": "overlays/03-implementer",
+            "allowedChanges": [
+                "planning/specs/S-002-find-saved-document/tasks.md"
+            ]
+        },
+        {
+            "id": "verifier",
+            "overlay": "overlays/04-verifier",
+            "allowedChanges": [
+                "planning/specs/S-002-find-saved-document/spec.md",
+                "planning/specs/S-002-find-saved-document/tasks.md"
+            ]
+        },
+        {
+            "id": "reconciler",
+            "overlay": "overlays/05-reconciler",
+            "allowedChanges": [
+                "planning/ROADMAP.md",
+                "planning/specs/S-002-find-saved-document/spec.md",
+                "planning/specs/S-002-find-saved-document/tasks.md",
+                "planning/system/search.md"
+            ]
+        }
+    ]
+}

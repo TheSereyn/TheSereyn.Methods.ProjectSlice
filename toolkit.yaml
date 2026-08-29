@@ -1,0 +1,32 @@
+name: @thesereyn/project-slice-method
+version: 0.1.0
+methodVersion: 0.2
+description: Bootstrap Project Slice Method planning artifacts, Copilot customizations, and structural validation into a Git repository.
+
+install:
+  primary: npx @thesereyn/project-slice-method init
+  local: node bin/psm.js init
+
+instructions:
+  file: .github/copilot-instructions.md
+  createTemplate: templates/project/.github/copilot-instructions.md
+
+repoManaged:
+  - source: .github/agents
+    destination: .github/agents
+  - source: .github/hooks
+    destination: .github/hooks
+  - source: .github/instructions
+    destination: .github/instructions
+  - source: .github/prompts
+    destination: .github/prompts
+  - source: .github/skills
+    destination: .github/skills
+  - source: scripts/psm
+    destination: scripts/psm
+  - source: templates/project/.github/workflows/psm-validate.yml
+    destination: .github/workflows/psm-validate.yml
+
+planOwned:
+  - source: templates/project/planning
+    destination: "{{PLANNING_ROOT}}"

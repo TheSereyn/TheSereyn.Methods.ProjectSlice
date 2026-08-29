@@ -1,0 +1,187 @@
+{
+    "specialists": [
+        {
+            "agent": "psm-project-shaper",
+            "file": ".github/agents/project-shaper.agent.md",
+            "tools": [
+                "read",
+                "search",
+                "edit",
+                "execute"
+            ],
+            "expectedSkills": [
+                "psm-bootstrap-project",
+                "psm-shape-roadmap",
+                "psm-triage-inbox",
+                "psm-project-status"
+            ],
+            "overlay": "overlays/00-project-shaper",
+            "prerequisiteOverlays": [],
+            "writeScopePatterns": [
+                "planning/PROJECT.md",
+                "planning/CAPABILITIES.md",
+                "planning/ROADMAP.md",
+                "planning/INBOX.md",
+                "planning/BACKLOG.md",
+                "planning/milestones/**"
+            ],
+            "allowedChanges": [
+                "planning/BACKLOG.md",
+                "planning/CAPABILITIES.md",
+                "planning/PROJECT.md",
+                "planning/ROADMAP.md",
+                "planning/milestones/M-002-connected-documents.md"
+            ],
+            "escalationPhrases": [
+                "project-level uncertainty or contradiction means roadmap intent itself may be wrong",
+                "a requested change belongs in active slice implementation rather than roadmap shaping",
+                "a material scope or priority change needs human approval before the roadmap can be made truthful"
+            ]
+        },
+        {
+            "agent": "psm-slice-planner",
+            "file": ".github/agents/slice-planner.agent.md",
+            "tools": [
+                "read",
+                "search",
+                "edit",
+                "execute"
+            ],
+            "expectedSkills": [
+                "psm-specify-slice",
+                "psm-design-slice",
+                "psm-decompose-tasks",
+                "psm-check-readiness",
+                "psm-traceability-audit"
+            ],
+            "overlay": "overlays/01-slice-planner",
+            "prerequisiteOverlays": [],
+            "writeScopePatterns": [
+                "planning/specs/**",
+                "planning/decisions/**",
+                "planning/ROADMAP.md",
+                "planning/INBOX.md"
+            ],
+            "allowedChanges": [
+                "planning/INBOX.md",
+                "planning/ROADMAP.md",
+                "planning/specs/S-002-find-saved-document/design.md",
+                "planning/specs/S-002-find-saved-document/spec.md",
+                "planning/specs/S-002-find-saved-document/tasks.md"
+            ],
+            "escalationPhrases": [
+                "the slice cannot be made coherent without reopening project intent",
+                "a dependency invalidates the delivery order",
+                "a proposed change materially expands the approved slice boundary"
+            ]
+        },
+        {
+            "agent": "psm-implementer",
+            "file": ".github/agents/implementer.agent.md",
+            "tools": [
+                "read",
+                "search",
+                "edit",
+                "execute"
+            ],
+            "expectedSkills": [
+                "psm-capture-inbox",
+                "psm-traceability-audit"
+            ],
+            "overlay": "overlays/03-implementer",
+            "prerequisiteOverlays": [
+                "overlays/01-slice-planner",
+                "overlays/02-project-manager-active"
+            ],
+            "writeScopePatterns": [
+                "planning/specs/**",
+                "planning/INBOX.md",
+                "src/**",
+                "tests/**"
+            ],
+            "allowedChanges": [
+                "planning/specs/S-002-find-saved-document/tasks.md"
+            ],
+            "escalationPhrases": [
+                "if new work is required for acceptance, request a slice-plan adjustment",
+                "if an assumption is invalid, stop and escalate",
+                "the requested change belongs in roadmap shaping or acceptance redefinition rather than implementation"
+            ]
+        },
+        {
+            "agent": "psm-verifier",
+            "file": ".github/agents/verifier.agent.md",
+            "tools": [
+                "read",
+                "search",
+                "execute",
+                "edit"
+            ],
+            "expectedSkills": [
+                "psm-verify-slice",
+                "psm-traceability-audit"
+            ],
+            "overlay": "overlays/04-verifier",
+            "prerequisiteOverlays": [
+                "overlays/01-slice-planner",
+                "overlays/02-project-manager-active",
+                "overlays/03-implementer"
+            ],
+            "writeScopePatterns": [
+                "planning/specs/**",
+                "tests/**"
+            ],
+            "allowedChanges": [
+                "planning/specs/S-002-find-saved-document/spec.md",
+                "planning/specs/S-002-find-saved-document/tasks.md"
+            ],
+            "escalationPhrases": [
+                "verification failure appears to be specification ambiguity rather than an implementation defect",
+                "the environment prevents trustworthy verification",
+                "the requested action is to fix production code rather than verify it"
+            ]
+        },
+        {
+            "agent": "psm-reconciler",
+            "file": ".github/agents/reconciler.agent.md",
+            "tools": [
+                "read",
+                "search",
+                "edit",
+                "execute"
+            ],
+            "expectedSkills": [
+                "psm-reconcile-slice",
+                "psm-traceability-audit",
+                "psm-capture-inbox"
+            ],
+            "overlay": "overlays/05-reconciler",
+            "prerequisiteOverlays": [
+                "overlays/01-slice-planner",
+                "overlays/02-project-manager-active",
+                "overlays/03-implementer",
+                "overlays/04-verifier"
+            ],
+            "writeScopePatterns": [
+                "planning/ROADMAP.md",
+                "planning/specs/**",
+                "planning/system/**",
+                "planning/milestones/**",
+                "planning/decisions/**",
+                "planning/INBOX.md",
+                "planning/BACKLOG.md"
+            ],
+            "allowedChanges": [
+                "planning/ROADMAP.md",
+                "planning/specs/S-002-find-saved-document/spec.md",
+                "planning/specs/S-002-find-saved-document/tasks.md",
+                "planning/system/search.md"
+            ],
+            "escalationPhrases": [
+                "verification has not actually passed",
+                "truthful reconciliation would require changing production behavior rather than project state",
+                "milestone or roadmap truth requires a human decision that is not yet made"
+            ]
+        }
+    ]
+}

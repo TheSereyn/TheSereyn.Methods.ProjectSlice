@@ -1,0 +1,279 @@
+{
+    "agent": "psm-project-manager",
+    "file": ".github/agents/project-manager.agent.md",
+    "tools": [
+        "read",
+        "search",
+        "edit",
+        "execute",
+        "agent"
+    ],
+    "statusResponseSections": [
+        "Current milestone",
+        "Active slices",
+        "Next slice",
+        "Blocked slices",
+        "Recently completed",
+        "Untriaged Inbox items",
+        "Roadmap risks"
+    ],
+    "commonSkills": [
+        "psm-project-status",
+        "psm-capture-inbox",
+        "psm-traceability-audit"
+    ],
+    "delegations": [
+        {
+            "intent": "orientation",
+            "routeType": "skill",
+            "route": "psm-project-status",
+            "examplePrompts": [
+                "Where are we?",
+                "What should I work on next?",
+                "Review where the project stands.",
+                "What is blocking the current milestone?"
+            ]
+        },
+        {
+            "intent": "capture-tangent",
+            "routeType": "skill",
+            "route": "psm-capture-inbox",
+            "examplePrompts": [
+                "Capture this idea for later.",
+                "It might be useful later if this could sync between devices."
+            ]
+        },
+        {
+            "intent": "roadmap-or-triage",
+            "routeType": "agent",
+            "route": "psm-project-shaper",
+            "examplePrompts": [
+                "Go through the Inbox with me.",
+                "Revisit the roadmap.",
+                "What should the next milestone contain?"
+            ]
+        },
+        {
+            "intent": "slice-planning",
+            "routeType": "agent",
+            "route": "psm-slice-planner",
+            "examplePrompts": [
+                "Plan the next useful vertical slice.",
+                "Get S-002 ready.",
+                "I think the current slice should include importing Markdown as well."
+            ]
+        },
+        {
+            "intent": "implementation",
+            "routeType": "agent",
+            "route": "psm-implementer",
+            "examplePrompts": [
+                "Implement the active slice.",
+                "Implement S-002."
+            ],
+            "note": "Only delegate directly when the slice is already ready or active."
+        },
+        {
+            "intent": "verification",
+            "routeType": "agent",
+            "route": "psm-verifier",
+            "examplePrompts": [
+                "Verify the slice.",
+                "Show me whether S-002 passes its acceptance criteria."
+            ]
+        },
+        {
+            "intent": "reconciliation",
+            "routeType": "agent",
+            "route": "psm-reconciler",
+            "examplePrompts": [
+                "Close out the slice.",
+                "Reconcile the verified work."
+            ]
+        },
+        {
+            "intent": "milestone-acceptance",
+            "routeType": "self",
+            "route": "psm-project-manager",
+            "examplePrompts": [
+                "Accept milestone M-001.",
+                "Should we accept this milestone now?"
+            ]
+        }
+    ],
+    "approvalGates": [
+        {
+            "id": "initial-project-approval",
+            "phrase": "initial project outcomes and non-goals"
+        },
+        {
+            "id": "project-intent-change",
+            "phrase": "material changes to project intent"
+        },
+        {
+            "id": "roadmap-commitment-change",
+            "phrase": "material roadmap commitment or priority changes"
+        },
+        {
+            "id": "slice-boundary-approval",
+            "phrase": "approving a slice outcome and boundary before implementation begins"
+        },
+        {
+            "id": "active-slice-scope-expansion",
+            "phrase": "expanding an approved active slice beyond its stated outcome"
+        },
+        {
+            "id": "significant-architectural-trade-off",
+            "phrase": "significant architectural trade-offs with project-wide impact"
+        },
+        {
+            "id": "milestone-acceptance",
+            "phrase": "milestone acceptance when the milestone represents a meaningful release or review decision"
+        }
+    ],
+    "tangentPolicy": [
+        {
+            "classification": "necessary-now",
+            "routeType": "agent",
+            "route": "psm-slice-planner"
+        },
+        {
+            "classification": "useful-later",
+            "routeType": "skill",
+            "route": "psm-capture-inbox"
+        },
+        {
+            "classification": "invalidates-assumption",
+            "routeType": "escalate",
+            "route": "blocking-conflict"
+        }
+    ],
+    "scenarios": [
+        {
+            "id": "orientation",
+            "prompt": "Where are we?",
+            "routeType": "skill",
+            "route": "psm-project-status",
+            "prerequisiteOverlays": [],
+            "resultOverlay": null,
+            "validatorCommand": [
+                "status"
+            ],
+            "expectedOutput": [
+                "Current milestone: M-001 [active] (1/3 done)",
+                "Next slice: S-002 — Find saved document [planned]"
+            ]
+        },
+        {
+            "id": "capture-tangent",
+            "prompt": "It might be useful later if this could sync between devices.",
+            "routeType": "skill",
+            "route": "psm-capture-inbox",
+            "prerequisiteOverlays": [],
+            "resultOverlay": "overlays/06-project-manager-tangent",
+            "validatorCommand": [
+                "status"
+            ],
+            "expectedOutput": [
+                "Untriaged Inbox items: 1",
+                "Next slice: S-002 — Find saved document [planned]"
+            ],
+            "unchangedFiles": [
+                "planning/ROADMAP.md"
+            ]
+        },
+        {
+            "id": "plan-next-slice",
+            "prompt": "Plan the next useful vertical slice.",
+            "routeType": "agent",
+            "route": "psm-slice-planner",
+            "approvalGate": "slice-boundary-approval",
+            "prerequisiteOverlays": [],
+            "resultOverlay": "overlays/01-slice-planner",
+            "validatorCommand": [
+                "status"
+            ],
+            "expectedOutput": [
+                "Next slice: S-002 — Find saved document [ready]",
+                "Untriaged Inbox items: 1"
+            ]
+        },
+        {
+            "id": "activate-ready-slice",
+            "prompt": "Start S-002.",
+            "routeType": "self",
+            "route": "psm-project-manager",
+            "prerequisiteOverlays": [
+                "overlays/01-slice-planner"
+            ],
+            "resultOverlay": "overlays/02-project-manager-active",
+            "validatorCommand": [
+                "status"
+            ],
+            "expectedOutput": [
+                "Active slices: S-002 — Find saved document",
+                "Next slice: S-003 — Export document [planned]"
+            ]
+        },
+        {
+            "id": "implement-active-slice",
+            "prompt": "Implement the active slice.",
+            "routeType": "agent",
+            "route": "psm-implementer",
+            "prerequisiteOverlays": [
+                "overlays/01-slice-planner",
+                "overlays/02-project-manager-active"
+            ],
+            "resultOverlay": "overlays/03-implementer",
+            "validatorCommand": [
+                "trace",
+                "S-002"
+            ],
+            "expectedOutput": [
+                "Reconciliation Notes",
+                "- Pending."
+            ]
+        },
+        {
+            "id": "verify-slice",
+            "prompt": "Verify the slice.",
+            "routeType": "agent",
+            "route": "psm-verifier",
+            "prerequisiteOverlays": [
+                "overlays/01-slice-planner",
+                "overlays/02-project-manager-active",
+                "overlays/03-implementer"
+            ],
+            "resultOverlay": "overlays/04-verifier",
+            "validatorCommand": [
+                "trace",
+                "S-002"
+            ],
+            "expectedOutput": [
+                "dotnet test --filter FindSavedDocument",
+                "Manual demonstration: create two documents"
+            ]
+        },
+        {
+            "id": "reconcile-slice",
+            "prompt": "Close out the slice.",
+            "routeType": "agent",
+            "route": "psm-reconciler",
+            "prerequisiteOverlays": [
+                "overlays/01-slice-planner",
+                "overlays/02-project-manager-active",
+                "overlays/03-implementer",
+                "overlays/04-verifier"
+            ],
+            "resultOverlay": "overlays/05-reconciler",
+            "validatorCommand": [
+                "trace",
+                "S-002"
+            ],
+            "expectedOutput": [
+                "planning/system/search.md",
+                "Updated `planning/system/search.md`"
+            ]
+        }
+    ]
+}

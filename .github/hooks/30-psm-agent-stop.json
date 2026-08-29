@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "hooks": {
+    "agentStop": [
+      {
+        "type": "command",
+        "command": "node scripts/psm/hook_runner.mjs agent-stop",
+        "cwd": ".",
+        "timeoutSec": 30
+      }
+    ]
+  }
+}

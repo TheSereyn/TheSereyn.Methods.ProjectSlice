@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "hooks": {
+    "sessionStart": [
+      {
+        "type": "command",
+        "command": "node scripts/psm/hook_runner.mjs session-start",
+        "cwd": ".",
+        "timeoutSec": 20
+      }
+    ]
+  }
+}

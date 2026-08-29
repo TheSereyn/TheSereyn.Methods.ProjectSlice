@@ -1,0 +1,84 @@
+{
+    "hooks": [
+        {
+            "file": ".github/hooks/10-psm-session-start.json",
+            "event": "sessionStart",
+            "mode": "session-start",
+            "runner": "node scripts/psm/hook_runner.mjs session-start",
+            "expectedKeys": [
+                "additionalContext"
+            ]
+        },
+        {
+            "file": ".github/hooks/20-psm-pre-tool-use.json",
+            "event": "preToolUse",
+            "mode": "pre-tool-use",
+            "runner": "node scripts/psm/hook_runner.mjs pre-tool-use",
+            "matcher": "bash|powershell",
+            "expectedKeys": [
+                "permissionDecision"
+            ]
+        },
+        {
+            "file": ".github/hooks/30-psm-agent-stop.json",
+            "event": "agentStop",
+            "mode": "agent-stop",
+            "runner": "node scripts/psm/hook_runner.mjs agent-stop",
+            "expectedKeys": [
+                "decision"
+            ]
+        }
+    ],
+    "prompts": [
+        {
+            "file": ".github/prompts/project-status.prompt.md",
+            "description": "Project Slice Method status.",
+            "agent": "agent",
+            "mustMention": [
+                "psm-project-manager",
+                "Current milestone:",
+                "Next slice:"
+            ]
+        },
+        {
+            "file": ".github/prompts/capture-idea.prompt.md",
+            "description": "Project Slice Method tangent capture.",
+            "agent": "agent",
+            "mustMention": [
+                "psm-project-manager",
+                "INBOX.md",
+                "current workflow"
+            ]
+        },
+        {
+            "file": ".github/prompts/plan-next-slice.prompt.md",
+            "description": "Project Slice Method slice planning.",
+            "agent": "agent",
+            "mustMention": [
+                "psm-project-manager",
+                "vertical slice",
+                "approval gate"
+            ]
+        },
+        {
+            "file": ".github/prompts/implement-active-slice.prompt.md",
+            "description": "Project Slice Method implementation.",
+            "agent": "agent",
+            "mustMention": [
+                "psm-project-manager",
+                "ready",
+                "active"
+            ]
+        },
+        {
+            "file": ".github/prompts/triage-inbox.prompt.md",
+            "description": "Project Slice Method Inbox triage.",
+            "agent": "agent",
+            "mustMention": [
+                "psm-project-manager",
+                "discard",
+                "candidate for roadmap shaping"
+            ]
+        }
+    ]
+}

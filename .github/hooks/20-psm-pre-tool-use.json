@@ -1,0 +1,14 @@
+{
+  "version": 1,
+  "hooks": {
+    "preToolUse": [
+      {
+        "type": "command",
+        "matcher": "bash|powershell",
+        "command": "node scripts/psm/hook_runner.mjs pre-tool-use",
+        "cwd": ".",
+        "timeoutSec": 10
+      }
+    ]
+  }
+}
