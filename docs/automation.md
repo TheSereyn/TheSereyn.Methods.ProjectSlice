@@ -47,7 +47,7 @@ The package ships these shortcuts:
 - `.github/prompts/implement-active-slice.prompt.md`
 - `.github/prompts/triage-inbox.prompt.md`
 
-Each prompt routes through the human-facing Project Manager contract rather than bypassing the orchestration layer.
+Each prompt routes through the user-facing Project Manager contract rather than bypassing the orchestration layer.
 
 ## Runtime note
 

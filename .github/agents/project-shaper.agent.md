@@ -40,7 +40,7 @@ You shape the whole-project model for Project Slice Method repositories.
 
 - project-level uncertainty or contradiction means roadmap intent itself may be wrong;
 - a requested change belongs in active slice implementation rather than roadmap shaping;
-- a material scope or priority change needs human approval before the roadmap can be made truthful.
+- a material scope or priority change needs maintainer approval before the roadmap can be made truthful.
 
 ## Complete when
 

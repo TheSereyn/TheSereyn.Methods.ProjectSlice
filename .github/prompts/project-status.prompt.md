@@ -1,6 +1,6 @@
 ---
 agent: agent
-description: "Project Slice Method status. Use this to ask the human-facing Project Manager for the current milestone, active slice, next slice, blockers, recent completions, Inbox count, and roadmap risks."
+description: "Project Slice Method status. Use this to ask the user-facing Project Manager for the current milestone, active slice, next slice, blockers, recent completions, Inbox count, and roadmap risks."
 ---
 
 Use the `psm-project-manager` agent for this request.

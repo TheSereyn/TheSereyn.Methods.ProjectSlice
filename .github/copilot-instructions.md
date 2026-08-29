@@ -16,7 +16,7 @@ This repo is intentionally lightweight at the start. Keep the work focused, read
 
 - Treat durable project state as repository files rather than chat history.
 - Favor simple, Markdown-first planning artifacts.
-- Keep the method understandable to a human without a dedicated PM tool.
+- Keep the method understandable without a dedicated PM tool.
 - Preserve clear boundaries between project intent, roadmap, active slice, backlog, and inbox.
 - Prefer small vertical slices that produce observable, testable outcomes.
 - Capture tangential ideas in an Inbox rather than silently expanding active scope.

@@ -6,7 +6,7 @@ This fixture exercises the Project Slice Method workflow across several role-spe
 
 - `base/`: the project state the Project Manager inspects to decide what is next.
 - `specialist-agents.json`: the explicit Phase 4 contract for each specialist agent, including tool set, write scope, common skills, escalation phrases, and fixture overlays.
-- `project-manager.json`: the explicit Phase 5 contract for the human-facing Project Manager, including routing rules, approval gates, status labels, tangent policy, and prompt scenarios.
+- `project-manager.json`: the explicit Phase 5 contract for the user-facing Project Manager, including routing rules, approval gates, status labels, tangent policy, and prompt scenarios.
 - `phase6-automation.json`: the explicit Phase 6 contract for hook files, prompt shortcuts, and automation expectations.
 - `overlays/01-slice-planner/`: the Slice Planner readies `S-002` and captures a tangent in the Inbox.
 - `overlays/02-project-manager-active/`: the Project Manager activates the ready slice.
@@ -22,9 +22,9 @@ The fixture is designed to prove two things:
 1. the CLI and validator can inspect realistic plan states;
 2. each workflow stage changes only the artifact categories it should own.
 
-It now also proves the human-facing orchestration layer:
+It now also proves the user-facing orchestration layer:
 
-1. the Project Manager remains the only normal human entry point;
+1. the Project Manager remains the only normal user entry point;
 2. natural-language intents map to stable internal routes and approval gates;
 3. tangent capture preserves scope instead of silently reshaping the roadmap.
 

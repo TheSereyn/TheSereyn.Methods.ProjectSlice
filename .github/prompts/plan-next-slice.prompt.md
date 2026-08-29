@@ -12,4 +12,4 @@ Choose or confirm the next useful vertical slice, route the planning work to the
 - included and deferred scope;
 - readiness status;
 - any blocking findings;
-- whether a human approval gate must be crossed before implementation begins.
+- whether a maintainer approval gate must be crossed before implementation begins.

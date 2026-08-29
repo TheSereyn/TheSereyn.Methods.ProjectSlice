@@ -189,7 +189,7 @@ function sessionStart(payload) {
 
     const lines = [
         "This repository uses Project Slice Method.",
-        "Use the human-facing Project Manager or the prompt shortcuts for normal interaction.",
+        "Use the user-facing Project Manager or the prompt shortcuts for normal interaction.",
         "Discovered plan roots:"
     ];
 

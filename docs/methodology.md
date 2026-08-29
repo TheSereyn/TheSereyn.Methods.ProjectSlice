@@ -13,7 +13,7 @@ The method avoids two common failure modes:
 
 Instead, PSM separates project state into a small set of views that answer different questions.
 
-## Human-facing model
+## User-facing model
 
 Most people should only need four entry points:
 
@@ -94,4 +94,4 @@ This repository packages the method into a reusable system:
 - a starter bootstrap CLI;
 - a worked example project state.
 
-The result is a method that remains human-readable while being structured enough for reliable AI assistance.
+The result is a method that remains easy to read while being structured enough for reliable AI assistance.

@@ -8,7 +8,7 @@ description: "Initialize or normalize a repository to use Project Slice Method. 
 ## Inputs
 
 - the current repository state;
-- the human description of the project;
+- the user's description of the project;
 - any existing planning or delivery artifacts.
 
 ## Outputs

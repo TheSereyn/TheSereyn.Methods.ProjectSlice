@@ -1,6 +1,6 @@
 ---
 name: "psm-project-status"
-description: "Produce a concise current-state summary for a Project Slice Method repository. Use when a human asks where the project stands, what is next, what is blocked, or what milestone is active."
+description: "Produce a concise current-state summary for a Project Slice Method repository. Use when a user asks where the project stands, what is next, what is blocked, or what milestone is active."
 ---
 
 # Report current project status
@@ -13,7 +13,7 @@ description: "Produce a concise current-state summary for a Project Slice Method
 
 ## Outputs
 
-- a concise current-state summary for a human;
+- a concise current-state summary for the user;
 - the current milestone, active slice, next slice, blockers, recent completions, Inbox count, and roadmap risks.
 
 ## Procedure
@@ -28,7 +28,7 @@ Use the active plan root and report:
 - untriaged Inbox count;
 - notable roadmap risks.
 
-Use `python3 scripts/psm/validate_psm.py status <plan-root>` when a deterministic status summary is useful, then add any necessary human interpretation without expanding scope or inventing hidden state.
+Use `python3 scripts/psm/validate_psm.py status <plan-root>` when a deterministic status summary is useful, then add any necessary plain-language interpretation without expanding scope or inventing hidden state.
 
 ## Response format
 

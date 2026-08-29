@@ -46,4 +46,4 @@ The validator is structural. Use agent judgment separately for semantic question
 ## Escalate when
 
 - structural validation fails in a way that implies planning divergence rather than routine metadata repair;
-- a human decision is required to resolve contradictory roadmap or slice intent.
+- a maintainer decision is required to resolve contradictory roadmap or slice intent.

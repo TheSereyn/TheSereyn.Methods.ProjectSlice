@@ -48,7 +48,7 @@ Examples:
 - `planning/` for a single-plan repository.
 - `planning/site-web/` and `planning/site-content/` for a repository that carries more than one plan.
 
-Avoid using `.psm/` as the primary location for project artifacts. Hidden directories are a better fit for tool-owned metadata than for the human-facing project model.
+Avoid using `.psm/` as the primary location for project artifacts. Hidden directories are a better fit for tool-owned metadata than for the visible project model.
 
 ## Daily working set
 

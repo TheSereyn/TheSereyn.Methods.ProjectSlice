@@ -86,7 +86,7 @@ It reports:
 - `MISSING`
 - `STALE`
 
-This is intentionally scoped to package-managed files. Project-owned plan artifacts and the main instructions file remain human-owned and are not treated as package drift by default.
+This is intentionally scoped to package-managed files. Project-owned plan artifacts and the main instructions file remain user-owned and are not treated as package drift by default.
 
 ## Install-state model
 

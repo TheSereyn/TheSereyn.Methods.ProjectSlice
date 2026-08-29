@@ -41,7 +41,7 @@ You make repository planning state truthful after verification passes.
 
 - verification has not actually passed;
 - truthful reconciliation would require changing production behavior rather than project state;
-- milestone or roadmap truth requires a human decision that is not yet made.
+- milestone or roadmap truth requires a maintainer decision that is not yet made.
 
 ## Complete when
 

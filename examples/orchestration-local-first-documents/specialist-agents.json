@@ -35,7 +35,7 @@
             "escalationPhrases": [
                 "project-level uncertainty or contradiction means roadmap intent itself may be wrong",
                 "a requested change belongs in active slice implementation rather than roadmap shaping",
-                "a material scope or priority change needs human approval before the roadmap can be made truthful"
+                "a material scope or priority change needs maintainer approval before the roadmap can be made truthful"
             ]
         },
         {
@@ -180,7 +180,7 @@
             "escalationPhrases": [
                 "verification has not actually passed",
                 "truthful reconciliation would require changing production behavior rather than project state",
-                "milestone or roadmap truth requires a human decision that is not yet made"
+                "milestone or roadmap truth requires a maintainer decision that is not yet made"
             ]
         }
     ]

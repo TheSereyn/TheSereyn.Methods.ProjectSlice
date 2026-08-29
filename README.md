@@ -43,7 +43,7 @@ Project plans stay visible and user-owned. Tool state stays hidden and package-o
 - Use `.psm/` only for installer state, lock data, and managed-package metadata.
 - When one repository needs more than one plan, keep them under `planning/<plan-slug>/` rather than moving them into `.psm/`.
 
-This is the common convention for systems like this: human-facing project state stays in an obvious, reviewable location, while hidden directories track tool ownership and update state.
+This is the common convention for systems like this: visible project state stays in an obvious, reviewable location, while hidden directories track tool ownership and update state.
 
 ## Requirements
 
@@ -60,7 +60,7 @@ A bootstrapped repository receives two classes of artifacts.
 
 The CLI treats `.github/copilot-instructions.md` as project-owned. If that file already exists, `init` preserves it by default and writes a merge-ready snippet to `.psm/copilot-instructions.snippet.md` instead of overwriting the file.
 
-The daily human working set stays intentionally small:
+The daily working set stays intentionally small:
 
 - `planning/PROJECT.md`
 - `planning/ROADMAP.md`
@@ -159,7 +159,7 @@ The current state is:
 - Phase 2: implemented.
 - Phase 3: complete for the core workflow skills, with consistent skill contracts, an automated skill audit, and deterministic validator support for `status`, `trace`, `milestone`, `coverage`, and `next-id`.
 - Phase 4: complete at the repository-contract level, with explicit specialist-agent write scopes, common skills, escalation rules, completion conditions, and independent fixture-backed boundary tests.
-- Phase 5: complete at the repository-contract level, with an explicit Project Manager routing contract, approval gates, status response format, tangent-handling policy, and fixture-backed human-prompt scenarios.
+- Phase 5: complete at the repository-contract level, with an explicit Project Manager routing contract, approval gates, status response format, tangent-handling policy, and fixture-backed user-prompt scenarios.
 - Phase 6: complete at the repository-contract level, with repository hook files, prompt shortcuts, a shared hook helper, and fixture-backed automation tests.
 
 Local-source lifecycle commands such as `add`, `sync`, `update`, and `diff` are implemented. Remote GitHub-source lifecycle work remains intentionally deferred until the package contract is stable enough to justify remote resolution behavior.

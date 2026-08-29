@@ -17,7 +17,7 @@ This repository is a partial implementation of the Project Slice Method technica
 - Support for more than one plan root by keeping plans under `planning/<plan-slug>/`.
 - End-to-end workflow fixtures that model the project-manager, planner, implementer, verifier, and reconciler progression for a sample repo.
 - Independent specialist-agent fixture contracts and overlays for project-shaper, slice-planner, implementer, verifier, and reconciler scenarios.
-- An explicit Project Manager fixture contract and tangent-capture overlay for human-facing orchestration behavior.
+- An explicit Project Manager fixture contract and tangent-capture overlay for user-facing orchestration behavior.
 - An explicit Phase 6 automation contract for hook files, prompt shortcuts, and runtime-hardening scenarios.
 
 ## Not implemented yet
@@ -29,10 +29,10 @@ This repository is a partial implementation of the Project Slice Method technica
 
 This repository now makes an explicit distinction:
 
-- `planning/` contains durable, human-owned project state;
+- `planning/` contains durable, user-owned project state;
 - `.psm/` contains tool-owned installation metadata and lock state.
 
-That split matches the common convention for Git-native planning systems. Hidden directories are a good place for machine-owned metadata. They are a poor place for the human-facing source of truth.
+That split matches the common convention for Git-native planning systems. Hidden directories are a good place for machine-owned metadata. They are a poor place for the visible project source of truth.
 
 ## Multi-plan convention
 
@@ -42,7 +42,7 @@ When one repository needs more than one PSM plan, use visible nested plan roots:
 - `planning/site-content/`
 - `planning/project-slice/`
 
-The CLI and validator now support that convention. The bundle intentionally avoids arbitrary hidden plan locations so Copilot instructions, repository review, and human navigation remain straightforward.
+The CLI and validator now support that convention. The bundle intentionally avoids arbitrary hidden plan locations so Copilot instructions, repository review, and direct navigation remain straightforward.
 
 ## Phase 4 note
 
@@ -60,7 +60,7 @@ What remains unproven is live runtime enforcement inside an actual Copilot execu
 
 Phase 5 is complete at the repository-contract level. The Project Manager now has:
 
-- an explicit human-facing routing contract;
+- an explicit user-facing routing contract;
 - defined approval gates for scope, roadmap, and milestone decisions;
 - a stable status response format;
 - explicit tangent-handling rules;
