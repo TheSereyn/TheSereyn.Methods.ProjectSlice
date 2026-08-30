@@ -19,7 +19,7 @@ The current package guidance distinguishes between shipped assets and live runti
 
 | Surface | Prompt to coordinator | ask-questions tool | visible coordinator handoff | current fallback |
 |---|---|---|---|---|
-| VS Code local Copilot chat | targeted by packaged assets | targeted through the appropriate ask-questions tool, such as `vscode/askQuestions` | targeted | if a tool or handoff is unavailable or ignored, end the turn with the smallest necessary list of questions or a generated context prompt for `psm-project-manager` |
+| VS Code local Copilot chat | manually verified: `/work-on-project` activated `psm-project-coordinator` | manually verified: structured question UI rendered and captured the selected project | manually verified as a user-visible generated-context fallback; no native persistent `psm-project-manager` mode switch was observed | generated context envelope for `psm-project-manager`; the manual spike retained project-scoped context for the next follow-up turn |
 | Copilot CLI | no verified interactive transition | no verified structured question flow | no verified visible handoff | end the turn with the smallest necessary list of questions or a generated context prompt for `psm-project-manager` |
 | Copilot cloud agent on GitHub.com | no verified interactive transition | no verified structured question flow | no verified visible handoff | end the turn with the smallest necessary list of questions or a generated context prompt for `psm-project-manager` |
 
@@ -32,13 +32,15 @@ Current coordinator guidance should make these conditions explicit to the user r
 - no persistent project-local context can be retained across turns;
 - a user-visible fallback is being used instead of a real handoff.
 
+The manual VS Code local chat spike confirmed that the fallback itself is visible and explicit. It did not confirm a true mode switch into `psm-project-manager`.
+
 ## Remaining live verification
 
 Repository tests cover the packaged coordinator, prompt, selection skill, hook behavior, topology-aware host discovery, and read-only fallbacks.
 
 These live runtime checks are still outstanding:
 
-- `/work-on-project` activating `psm-project-coordinator` in VS Code local Copilot chat;
-- the appropriate ask-questions tool appearing and working inside the coordinator chat;
-- the visible coordinator-to-manager handoff activating `psm-project-manager`;
-- follow-up turns retaining the resolved project context after the handoff.
+- native visible coordinator-to-manager handoff activating `psm-project-manager` in VS Code local Copilot chat instead of the generated-context fallback;
+- follow-up turns retaining the resolved project context after a true native handoff, once a surface supports it;
+- interactive transition and structured-question behavior in Copilot CLI;
+- interactive transition and structured-question behavior in Copilot cloud agent on GitHub.com.

@@ -30,7 +30,7 @@ This repository is a partial implementation of the Project Slice Method technica
 
 - remote GitHub-source package installation;
 - MCP integrations or external projections such as GitHub Issues synchronization.
-- interactive coordinator, handoff, and project-context runtime surfaces from later multi-project slices.
+- native persistent coordinator-to-manager mode handoff across Copilot surfaces that cannot yet honor the documented user-visible fallback.
 
 ## Plan and metadata locations
 
@@ -60,7 +60,7 @@ Phase 4 is complete at the repository-contract level. Each specialist agent now 
 - a clear completion condition;
 - an independent fixture scenario whose overlay stays within the declared boundary and still validates.
 
-Live runtime enforcement inside Copilot surfaces is still to be validated.
+Manual VS Code local Copilot chat verification now confirms prompt discovery, coordinator activation, and structured-question rendering for the multi-project entry flow. Native mode handoff remains surface-dependent.
 
 ## Phase 5 status
 
@@ -73,7 +73,7 @@ Phase 5 is complete at the repository-contract level. The Project Manager now ha
 - explicit tangent-handling rules;
 - fixture-backed prompt scenarios that prove the route and resulting project state for orientation, planning, activation, implementation, verification, reconciliation, and tangent capture.
 
-Live runtime inference and delegation behavior inside Copilot surfaces is still to be validated.
+Manual VS Code local Copilot chat verification now confirms that resolved project context can carry into the next follow-up turn under the coordinator fallback flow. Native Project Manager mode activation remains surface-dependent and is not yet independently verified in a live handoff.
 
 ## Slice 3 status
 
@@ -97,7 +97,7 @@ The current state is:
 - lifecycle transitions install, refresh, and retain those capability-managed assets through `add-project`, `enable`, `sync`, `update`, and `disable`;
 - contract and fixture tests cover explicit, ambiguous, portfolio, and qualified-ID entry behavior.
 
-Live VS Code verification of prompt-to-coordinator activation, structured-question UI, visible coordinator-to-manager handoff, and retained PM context is still outstanding.
+Manual VS Code local Copilot chat verification now confirms prompt-to-coordinator activation and the structured-question UI. In the observed local chat surface, coordinator-to-manager transition used the documented generated-context fallback instead of a persistent mode switch.
 
 ## Slice 5 status
 
@@ -121,7 +121,7 @@ The current state is:
 - packaged coordinator assets now document explicit diagnostics for unavailable ask-questions tools and ignored visible handoffs;
 - the repository ships a runtime-compatibility matrix covering supported topologies and the current user-visible fallbacks.
 
-The remaining gap is live runtime verification inside the supported Copilot surfaces. Prompt-to-coordinator activation, `vscode/askQuestions`, visible coordinator-to-manager handoff, and retained PM context are still documented as outstanding manual checks.
+The remaining live-surface gap is native persistent `psm-project-manager` activation when a Copilot surface cannot perform a visible mode handoff. Manual VS Code local Copilot chat verification now covers prompt activation, `vscode/askQuestions`, the generated-context fallback, and retained project-scoped context on the next follow-up turn.
 
 ## Phase 6 status
 
@@ -145,4 +145,4 @@ Recent hardening made the package safer to re-run and easier to use without a fu
 ## Current limits
 
 - Semantic status-transition enforcement is not implemented yet. For example, the validator accepts allowed status values but does not yet reject an invalid `planned -> done` jump.
-- Exact live hook behavior still needs confirmation across each Copilot surface because runtime semantics differ between environments.
+- Native visible mode handoff behavior still differs across Copilot surfaces. The VS Code local chat surface can fall back correctly, but that fallback is not the same as a persistent `psm-project-manager` mode switch.
