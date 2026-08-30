@@ -7,7 +7,7 @@ const repositoryUrl = "https://github.com/TheSereyn/TheSereyn.Methods.ProjectSli
 
 test("stable releases publish the matching stable package version to latest", () => {
     const metadata = resolveReleasePublishMetadata({
-        tagName: "0.1.1",
+        tagName: "v0.1.1",
         releaseIsPrerelease: false,
         packageName: "@thesereyn/psm",
         packageVersion: "0.1.1",
@@ -24,7 +24,7 @@ test("stable releases publish the matching stable package version to latest", ()
 
 test("GitHub prerelease tags map one-to-one to npm prerelease versions", () => {
     const metadata = resolveReleasePublishMetadata({
-        tagName: "0.2.0-beta.2",
+        tagName: "v0.2.0-beta.2",
         releaseIsPrerelease: true,
         packageName: "@thesereyn/psm",
         packageVersion: "0.2.0-beta.2",
@@ -41,7 +41,7 @@ test("GitHub prerelease tags map one-to-one to npm prerelease versions", () => {
 
 test("GitHub prerelease tag alpha.0 is valid for the first prerelease", () => {
     const metadata = resolveReleasePublishMetadata({
-        tagName: "0.1.0-alpha.0",
+        tagName: "v0.1.0-alpha.0",
         releaseIsPrerelease: true,
         packageName: "@thesereyn/psm",
         packageVersion: "0.1.0-alpha.0",
@@ -55,10 +55,10 @@ test("GitHub prerelease tag alpha.0 is valid for the first prerelease", () => {
     assert.equal(metadata.packageVersion, "0.1.0-alpha.0");
 });
 
-test("release tags must not use a v prefix", () => {
+test("release tags must use a v prefix", () => {
     assert.throws(() => {
         resolveReleasePublishMetadata({
-            tagName: "v0.1.0",
+            tagName: "0.1.0",
             releaseIsPrerelease: false,
             packageName: "@thesereyn/psm",
             packageVersion: "0.1.0",
@@ -67,13 +67,13 @@ test("release tags must not use a v prefix", () => {
             repositoryUrl,
             expectedRepositoryUrl: repositoryUrl
         });
-    }, /bare semver/);
+    }, /v-prefixed semver/);
 });
 
 test("release prerelease flag must match the tag channel", () => {
     assert.throws(() => {
         resolveReleasePublishMetadata({
-            tagName: "0.1.0-alpha.1",
+            tagName: "v0.1.0-alpha.1",
             releaseIsPrerelease: false,
             packageName: "@thesereyn/psm",
             packageVersion: "0.1.0-alpha.1",
@@ -88,7 +88,7 @@ test("release prerelease flag must match the tag channel", () => {
 test("Trusted Publisher releases require an exact repository URL match", () => {
     assert.throws(() => {
         resolveReleasePublishMetadata({
-            tagName: "0.1.0",
+            tagName: "v0.1.0",
             releaseIsPrerelease: false,
             packageName: "@thesereyn/psm",
             packageVersion: "0.1.0",

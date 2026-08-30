@@ -8,14 +8,14 @@ The repository's automated publish path is intentionally narrow: it only runs fr
 
 - Stable releases use `Major.Minor.Patch`.
 - Prereleases use `Major.Minor.Patch-<type>.<build-number>`.
-- Release tags in this repository must use bare semver without a leading `v`.
-- GitHub release versions and npm package versions use one-to-one numbering.
+- Release tags in this repository must use `v`-prefixed semver.
+- GitHub release versions and npm package versions use one-to-one numbering once the leading `v` is removed from the GitHub tag.
 
 Examples:
 
-- GitHub release tag `0.1.0-alpha.0` maps to npm package version `0.1.0-alpha.0`.
-- GitHub release tag `0.1.0-beta.2` maps to npm package version `0.1.0-beta.2`.
-- GitHub release tag `0.1.0` maps directly to npm package version `0.1.0`.
+- GitHub release tag `v0.1.0-alpha.0` maps to npm package version `0.1.0-alpha.0`.
+- GitHub release tag `v0.1.0-beta.2` maps to npm package version `0.1.0-beta.2`.
+- GitHub release tag `v0.1.0` maps directly to npm package version `0.1.0`.
 
 ## Release train rules
 
@@ -72,11 +72,11 @@ Prerelease releases publish to the dist-tag that matches the prerelease channel,
 ## Publish examples
 
 - GitHub release tag `0.1.0-alpha.1` publishes npm version `0.1.0-alpha.0` with dist-tag `alpha`.
-- GitHub release tag `0.1.0-alpha.1` publishes npm version `0.1.0-alpha.1` with dist-tag `alpha`.
-- GitHub release tag `0.1.0-beta.1` publishes npm version `0.1.0-beta.1` with dist-tag `beta`.
-- GitHub release tag `0.1.0-rc.1` publishes npm version `0.1.0-rc.1` with dist-tag `rc`.
-- GitHub release tag `0.1.0` publishes npm version `0.1.0` with dist-tag `latest`.
-- GitHub release tag `0.1.1` publishes npm version `0.1.1` with dist-tag `latest`.
+- GitHub release tag `v0.1.0-alpha.1` publishes npm version `0.1.0-alpha.1` with dist-tag `alpha`.
+- GitHub release tag `v0.1.0-beta.1` publishes npm version `0.1.0-beta.1` with dist-tag `beta`.
+- GitHub release tag `v0.1.0-rc.1` publishes npm version `0.1.0-rc.1` with dist-tag `rc`.
+- GitHub release tag `v0.1.0` publishes npm version `0.1.0` with dist-tag `latest`.
+- GitHub release tag `v0.1.1` publishes npm version `0.1.1` with dist-tag `latest`.
 
 ## Post-publish check
 

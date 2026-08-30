@@ -3,7 +3,7 @@ import path from "node:path";
 import process from "node:process";
 import { fileURLToPath } from "node:url";
 
-const SEMVER_RELEASE_TAG = /^(?<major>0|[1-9]\d*)\.(?<minor>0|[1-9]\d*)\.(?<patch>0|[1-9]\d*)(?:-(?<preType>alpha|beta|rc)\.(?<preNumber>0|[1-9]\d*))?$/;
+const SEMVER_RELEASE_TAG = /^v(?<major>0|[1-9]\d*)\.(?<minor>0|[1-9]\d*)\.(?<patch>0|[1-9]\d*)(?:-(?<preType>alpha|beta|rc)\.(?<preNumber>0|[1-9]\d*))?$/;
 
 export function resolveReleasePublishMetadata({
     tagName,
@@ -17,7 +17,7 @@ export function resolveReleasePublishMetadata({
 }) {
     const match = SEMVER_RELEASE_TAG.exec(tagName);
     if (!match?.groups) {
-        throw new Error("Release tags must use bare semver like 0.1.0 or 0.1.0-alpha.0.");
+        throw new Error("Release tags must use v-prefixed semver like v0.1.0 or v0.1.0-alpha.0.");
     }
 
     if (packageName !== toolkitName) {
