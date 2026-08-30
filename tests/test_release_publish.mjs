@@ -22,9 +22,9 @@ test("stable releases publish the matching stable package version to latest", ()
     assert.equal(metadata.releaseChannel, "stable");
 });
 
-test("GitHub prerelease tags map one-based counters to zero-based npm versions", () => {
+test("GitHub prerelease tags map one-to-one to npm prerelease versions", () => {
     const metadata = resolveReleasePublishMetadata({
-        tagName: "0.2.0-beta.3",
+        tagName: "0.2.0-beta.2",
         releaseIsPrerelease: true,
         packageName: "@thesereyn/psm",
         packageVersion: "0.2.0-beta.2",
@@ -37,6 +37,22 @@ test("GitHub prerelease tags map one-based counters to zero-based npm versions",
     assert.equal(metadata.distTag, "beta");
     assert.equal(metadata.packageVersion, "0.2.0-beta.2");
     assert.equal(metadata.installCommand, "npx @thesereyn/psm@beta init");
+});
+
+test("GitHub prerelease tag alpha.0 is valid for the first prerelease", () => {
+    const metadata = resolveReleasePublishMetadata({
+        tagName: "0.1.0-alpha.0",
+        releaseIsPrerelease: true,
+        packageName: "@thesereyn/psm",
+        packageVersion: "0.1.0-alpha.0",
+        toolkitName: "@thesereyn/psm",
+        toolkitVersion: "0.1.0-alpha.0",
+        repositoryUrl,
+        expectedRepositoryUrl: repositoryUrl
+    });
+
+    assert.equal(metadata.distTag, "alpha");
+    assert.equal(metadata.packageVersion, "0.1.0-alpha.0");
 });
 
 test("release tags must not use a v prefix", () => {
@@ -60,9 +76,9 @@ test("release prerelease flag must match the tag channel", () => {
             tagName: "0.1.0-alpha.1",
             releaseIsPrerelease: false,
             packageName: "@thesereyn/psm",
-            packageVersion: "0.1.0-alpha.0",
+            packageVersion: "0.1.0-alpha.1",
             toolkitName: "@thesereyn/psm",
-            toolkitVersion: "0.1.0-alpha.0",
+            toolkitVersion: "0.1.0-alpha.1",
             repositoryUrl,
             expectedRepositoryUrl: repositoryUrl
         });

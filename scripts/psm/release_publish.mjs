@@ -17,7 +17,7 @@ export function resolveReleasePublishMetadata({
 }) {
     const match = SEMVER_RELEASE_TAG.exec(tagName);
     if (!match?.groups) {
-        throw new Error("Release tags must use bare semver like 0.1.0 or 0.1.0-alpha.1.");
+        throw new Error("Release tags must use bare semver like 0.1.0 or 0.1.0-alpha.0.");
     }
 
     if (packageName !== toolkitName) {
@@ -49,18 +49,13 @@ export function resolveReleasePublishMetadata({
     let installCommand = `npx ${packageName} init`;
 
     if (tagIsPrerelease) {
-        const githubPrereleaseNumber = Number(match.groups.preNumber);
-        if (githubPrereleaseNumber < 1) {
-            throw new Error(`GitHub prerelease tag ${tagName} must use one-based numbering.`);
-        }
-
-        expectedPackageVersion = `${releaseBaseVersion}-${prereleaseType}.${githubPrereleaseNumber - 1}`;
+        expectedPackageVersion = `${releaseBaseVersion}-${prereleaseType}.${match.groups.preNumber}`;
         distTag = prereleaseType;
         installCommand = `npx ${packageName}@${distTag} init`;
     }
 
     if (packageVersion !== expectedPackageVersion) {
-        throw new Error(`package.json version ${packageVersion} does not match the npm version ${expectedPackageVersion} implied by release tag ${tagName}.`);
+        throw new Error(`package.json version ${packageVersion} does not match the package version ${expectedPackageVersion} implied by release tag ${tagName}.`);
     }
 
     return {
