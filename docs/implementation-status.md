@@ -14,6 +14,7 @@ This repository is a partial implementation of the Project Slice Method technica
 - Local-source lifecycle commands for `inspect`, `add`, `sync`, `update`, and `diff`, backed by package-aware install-state tracking, baseline-hash local-edit preservation, and `--force`, `--dry-run`, and `--prune` controls.
 - Slice 1 project descriptor discovery through `psm projects`, including `project_key`, `implementation_roots`, recursive multi-root discovery, and cross-root validation.
 - Slice 2 multi-project lifecycle transition infrastructure, including `add-project`, explicit `enable` and `disable` flows for `multi-project`, manifest-owned capability state, automatic migration from `planning/` to `planning/<project-key>/`, and capability-aware lifecycle refresh when a package source defines optional multi-project assets.
+- Slice 3 contract-level role boundaries, including a fixture-first Project Coordinator contract, a project-scoped Project Manager contract for resolved multi-project work, and specialist selected-scope rules that require inherited `plan_root` and `implementation_roots` context.
 - Repo-local agents, skills, and instructions that express the intended roles and workflows.
 - Safe handling for existing `.github/copilot-instructions.md` files.
 - Support for more than one plan root by keeping plans under `planning/<plan-slug>/`.
@@ -26,6 +27,7 @@ This repository is a partial implementation of the Project Slice Method technica
 
 - remote GitHub-source package installation;
 - MCP integrations or external projections such as GitHub Issues synchronization.
+- checked-in capability-managed coordinator, prompt, and selection-skill assets for installed hosts;
 - interactive coordinator, handoff, and project-context runtime surfaces from later multi-project slices.
 
 ## Plan and metadata locations
@@ -63,12 +65,25 @@ Live runtime enforcement inside Copilot surfaces is still to be validated.
 Phase 5 is complete at the repository-contract level. The Project Manager now has:
 
 - an explicit user-facing routing contract;
+- explicit rules for when multi-project ambiguity, project switching, and portfolio requests must return to the Project Coordinator;
 - defined approval gates for scope, roadmap, and milestone decisions;
 - a stable status response format;
 - explicit tangent-handling rules;
 - fixture-backed prompt scenarios that prove the route and resulting project state for orientation, planning, activation, implementation, verification, reconciliation, and tangent capture.
 
 Live runtime inference and delegation behavior inside Copilot surfaces is still to be validated.
+
+## Slice 3 status
+
+Slice 3 is now partially implemented at the repository-contract level.
+
+The current state is:
+
+- a fixture-only Project Coordinator contract defines installation-wide selection and portfolio responsibilities;
+- the shipped Project Manager contract is now explicitly project-scoped after context resolution in a multi-project host;
+- specialist contracts now require inherited selected-scope context instead of rediscovering project scope from repository-wide state.
+
+The packaged coordinator agent, selection skill, and visible runtime handoff are still deferred to later slices.
 
 ## Phase 6 status
 

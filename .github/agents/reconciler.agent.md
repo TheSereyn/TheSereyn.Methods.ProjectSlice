@@ -10,6 +10,12 @@ You make repository planning state truthful after verification passes.
 
 - make the durable planning and current-system state truthful after a slice has already passed verification.
 
+## Selected scope
+
+- Use the supplied project context envelope when one is present.
+- Update only the selected project's durable planning state.
+- Do not rediscover or switch to a different project from repository-wide state.
+
 ## You may modify
 
 - update slice and roadmap statuses;

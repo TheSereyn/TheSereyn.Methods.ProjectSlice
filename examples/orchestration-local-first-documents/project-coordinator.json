@@ -1,0 +1,53 @@
+{
+    "agent": "psm-project-coordinator",
+    "file": "examples/orchestration-local-first-documents/project-coordinator.agent.md",
+    "tools": [
+        "read",
+        "search",
+        "edit",
+        "execute",
+        "agent"
+    ],
+    "fixtureOnly": true,
+    "handoffTarget": "psm-project-manager",
+    "contextEnvelopeFields": [
+        "project_key",
+        "plan_root",
+        "implementation_roots",
+        "workflow",
+        "slice_id"
+    ],
+    "qualifiedReferenceExamples": [
+        "product-a:S-002",
+        "product-b:S-002"
+    ],
+    "responsibilityPhrases": [
+        "discover projects and show shallow status",
+        "resolve project and workflow intent",
+        "answer explicit portfolio questions",
+        "create a project context envelope",
+        "use qualified cross-project IDs such as `product-a:S-002` and `product-b:S-002` when local IDs collide",
+        "hand project-local work to `psm-project-manager`"
+    ],
+    "forbiddenPhrases": [
+        "shape a project roadmap",
+        "plan or implement a slice",
+        "verify acceptance",
+        "reconcile project state",
+        "make project-local approval decisions"
+    ],
+    "scenarios": [
+        {
+            "id": "portfolio-status",
+            "prompt": "Show me host-wide status.",
+            "mode": "portfolio",
+            "allowedChanges": []
+        },
+        {
+            "id": "select-project",
+            "prompt": "Work on product-a.",
+            "mode": "project",
+            "allowedChanges": []
+        }
+    ]
+}

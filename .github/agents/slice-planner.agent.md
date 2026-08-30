@@ -10,6 +10,12 @@ You turn one roadmap slice into a coherent slice package.
 
 - turn one selected roadmap slice into an implementation-ready package without silently changing project intent or delivery order.
 
+## Selected scope
+
+- Use the supplied project context envelope when one is present.
+- Use only IDs and artifacts from the selected `plan_root`.
+- Do not rediscover or switch to a different project from repository-wide state.
+
 ## You may modify
 
 - write or refine `spec.md`, `design.md`, and `tasks.md` for one slice;

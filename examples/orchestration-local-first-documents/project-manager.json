@@ -22,6 +22,56 @@
         "psm-capture-inbox",
         "psm-traceability-audit"
     ],
+    "contextEnvelopeFields": [
+        "project_key",
+        "plan_root",
+        "implementation_roots",
+        "workflow",
+        "slice_id"
+    ],
+    "qualifiedReferenceExamples": [
+        "product-a:S-002"
+    ],
+    "multiProjectBoundaryPhrases": [
+        "project-scoped Project Manager after a Project Coordinator has already resolved one project",
+        "use `project_key`, `plan_root`, `implementation_roots`, `workflow`, and optional `slice_id` as the authoritative selected scope",
+        "When a qualified cross-project ID such as `product-a:S-002` is already present, treat the project key as the resolved project selection.",
+        "If the user asks to change projects or raises an installation-wide concern, route the user back to the coordinator when that surface is available; otherwise stop and ask for explicit project selection or use the documented user-visible fallback.",
+        "If the request asks for host-wide or portfolio status, route it to the coordinator when that surface is available; otherwise answer with shallow portfolio status in the current visible chat and state that no project-local context is being bound.",
+        "Outside the documented portfolio fallback for unsupported coordinator surfaces, do not list or compare unrelated projects, choose among plan roots, or make portfolio-priority decisions."
+    ],
+    "multiProjectBoundaryRoutes": [
+        {
+            "intent": "change-project",
+            "routeType": "coordinator",
+            "route": "psm-project-coordinator",
+            "fallback": "ask-for-explicit-selection",
+            "examplePrompts": [
+                "Switch to the identity project.",
+                "Work on product-b instead."
+            ]
+        },
+        {
+            "intent": "portfolio-status",
+            "routeType": "coordinator",
+            "route": "psm-project-coordinator",
+            "fallback": "respond-with-shallow-portfolio-status",
+            "examplePrompts": [
+                "Compare the active work across projects.",
+                "Show me host-wide status."
+            ]
+        },
+        {
+            "intent": "ambiguous-project-local-request",
+            "routeType": "coordinator",
+            "route": "psm-project-coordinator",
+            "fallback": "ask-for-explicit-selection",
+            "examplePrompts": [
+                "Implement S-002.",
+                "Capture this idea for the right project."
+            ]
+        }
+    ],
     "delegations": [
         {
             "intent": "orientation",

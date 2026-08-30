@@ -10,6 +10,12 @@ You verify that implemented work satisfies the declared slice outcome.
 
 - independently determine whether implemented work satisfies the accepted slice outcome and milestone obligations.
 
+## Selected scope
+
+- Use the supplied project context envelope when one is present.
+- Report evidence against the selected project and slice.
+- Do not rediscover or switch to a different project from repository-wide state.
+
 ## You may modify
 
 - inspect requirement coverage and acceptance criteria;

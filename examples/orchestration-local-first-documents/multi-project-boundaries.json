@@ -1,0 +1,36 @@
+{
+    "portfolioFallback": {
+        "prompt": "Show me host-wide status.",
+        "route": "psm-project-coordinator",
+        "fallback": "respond-with-shallow-portfolio-status",
+        "expectedWrites": []
+    },
+    "ambiguousScenarios": [
+        {
+            "id": "ambiguous-implement",
+            "prompt": "Implement S-002.",
+            "route": "psm-project-coordinator",
+            "fallback": "ask-for-explicit-selection",
+            "duplicateLocalId": "S-002",
+            "expectedWrites": []
+        },
+        {
+            "id": "ambiguous-capture",
+            "prompt": "Capture this idea for the right project.",
+            "route": "psm-project-coordinator",
+            "fallback": "ask-for-explicit-selection",
+            "duplicateLocalId": "S-002",
+            "expectedWrites": []
+        }
+    ],
+    "delegationScenario": {
+        "id": "selected-implementation",
+        "prompt": "Implement product-a:S-002.",
+        "selectedProjectKey": "product-a",
+        "route": "psm-implementer",
+        "resultFiles": [
+            "planning/product-a/specs/S-002-find-saved-document/tasks.md",
+            "repos/product-a/src/search.txt"
+        ]
+    }
+}

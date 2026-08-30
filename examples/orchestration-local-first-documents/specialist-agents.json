@@ -32,6 +32,11 @@
                 "planning/ROADMAP.md",
                 "planning/milestones/M-002-connected-documents.md"
             ],
+            "scopePhrases": [
+                "Use the supplied project context envelope when one is present.",
+                "Write only within the selected `plan_root`.",
+                "Do not rediscover or switch to a different project from repository-wide state."
+            ],
             "escalationPhrases": [
                 "project-level uncertainty or contradiction means roadmap intent itself may be wrong",
                 "a requested change belongs in active slice implementation rather than roadmap shaping",
@@ -69,6 +74,11 @@
                 "planning/specs/S-002-find-saved-document/spec.md",
                 "planning/specs/S-002-find-saved-document/tasks.md"
             ],
+            "scopePhrases": [
+                "Use the supplied project context envelope when one is present.",
+                "Use only IDs and artifacts from the selected `plan_root`.",
+                "Do not rediscover or switch to a different project from repository-wide state."
+            ],
             "escalationPhrases": [
                 "the slice cannot be made coherent without reopening project intent",
                 "a dependency invalidates the delivery order",
@@ -102,6 +112,11 @@
             "allowedChanges": [
                 "planning/specs/S-002-find-saved-document/tasks.md"
             ],
+            "scopePhrases": [
+                "Use the supplied project context envelope when one is present.",
+                "Change code and tests only within the declared `implementation_roots`.",
+                "Do not rediscover or switch to a different project or code root from repository-wide state."
+            ],
             "escalationPhrases": [
                 "if new work is required for acceptance, request a slice-plan adjustment",
                 "if an assumption is invalid, stop and escalate",
@@ -134,6 +149,11 @@
             "allowedChanges": [
                 "planning/specs/S-002-find-saved-document/spec.md",
                 "planning/specs/S-002-find-saved-document/tasks.md"
+            ],
+            "scopePhrases": [
+                "Use the supplied project context envelope when one is present.",
+                "Report evidence against the selected project and slice.",
+                "Do not rediscover or switch to a different project from repository-wide state."
             ],
             "escalationPhrases": [
                 "verification failure appears to be specification ambiguity rather than an implementation defect",
@@ -176,6 +196,11 @@
                 "planning/specs/S-002-find-saved-document/spec.md",
                 "planning/specs/S-002-find-saved-document/tasks.md",
                 "planning/system/search.md"
+            ],
+            "scopePhrases": [
+                "Use the supplied project context envelope when one is present.",
+                "Update only the selected project's durable planning state.",
+                "Do not rediscover or switch to a different project from repository-wide state."
             ],
             "escalationPhrases": [
                 "verification has not actually passed",

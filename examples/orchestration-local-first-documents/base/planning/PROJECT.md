@@ -1,8 +1,10 @@
 ---
 type: project
 id: PROJECT
+project_key: local-first-documents
 method: psm
 method_version: 0.2
+implementation_roots: []
 ---
 
 # Local-First Documents

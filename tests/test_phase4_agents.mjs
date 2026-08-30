@@ -112,6 +112,7 @@ function applyOverlay(target, overlayPath) {
 test("specialist agents expose explicit Phase 4 contracts", () => {
     const requiredSections = [
         "Purpose",
+        "Selected scope",
         "You may modify",
         "Read first",
         "Common skills",
@@ -137,6 +138,10 @@ test("specialist agents expose explicit Phase 4 contracts", () => {
 
         for (const phrase of contract.escalationPhrases) {
             assert.match(content, new RegExp(phrase.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")), `Missing escalation guidance '${phrase}' for ${contract.agent}`);
+        }
+
+        for (const phrase of contract.scopePhrases ?? []) {
+            assert.match(content, new RegExp(phrase.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")), `Missing scope guidance '${phrase}' for ${contract.agent}`);
         }
     }
 });

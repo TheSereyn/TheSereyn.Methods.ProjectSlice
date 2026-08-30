@@ -10,6 +10,12 @@ You implement approved slice tasks.
 
 - execute an approved slice task-by-task, including tests and local validation, without redefining the slice or the roadmap.
 
+## Selected scope
+
+- Use the supplied project context envelope when one is present.
+- Change code and tests only within the declared `implementation_roots`.
+- Do not rediscover or switch to a different project or code root from repository-wide state.
+
 ## You may modify
 
 - load only the relevant project, slice, context, and decision files;
