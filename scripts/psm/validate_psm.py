@@ -13,6 +13,7 @@ MILESTONE_STATUSES = {"planned", "active", "passed"}
 INBOX_STATUSES = {"untriaged", "triaged"}
 BACKLOG_STATUSES = {"candidate", "selected", "dropped"}
 NONE_MARKERS = {"", "-", "--", "—", "none", "n/a"}
+PROJECT_KEY_PATTERN = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
 
 
 class Issue:
@@ -79,11 +80,51 @@ class SlicePackage:
         self.reconciliation_notes = reconciliation_notes
 
 
+class ProjectDescriptor:
+    def __init__(
+        self,
+        project_key: str,
+        project_key_source: str,
+        project_name: str,
+        project_id: str | None,
+        method: str | None,
+        method_version: str | None,
+        plan_root: Path,
+        host_root: Path,
+        implementation_roots: list[str],
+        project_path: Path,
+    ) -> None:
+        self.project_key = project_key
+        self.project_key_source = project_key_source
+        self.project_name = project_name
+        self.project_id = project_id
+        self.method = method
+        self.method_version = method_version
+        self.plan_root = plan_root
+        self.host_root = host_root
+        self.implementation_roots = implementation_roots
+        self.project_path = project_path
+
+    def to_dict(self) -> dict[str, object]:
+        return {
+            "projectKey": self.project_key,
+            "projectKeySource": self.project_key_source,
+            "projectName": self.project_name,
+            "projectId": self.project_id,
+            "method": self.method,
+            "methodVersion": self.method_version,
+            "planRoot": relative_to_repo(self.plan_root, self.host_root).replace("\\", "/"),
+            "implementationRoots": self.implementation_roots,
+        }
+
+
 class Validator:
     def __init__(self, target: Path, strict: bool = False) -> None:
         self.repo_root, self.planning_root = resolve_roots(target)
         self.strict = strict
         self.project_title = self.repo_root.name
+        self.project_key: str | None = None
+        self.implementation_roots: list[str] = []
         self.issues: list[Issue] = []
         self.roadmap_entries: dict[str, RoadmapEntry] = {}
         self.milestones: dict[str, Milestone] = {}
@@ -128,7 +169,16 @@ class Validator:
 
         project_path = self.planning_root / "PROJECT.md"
         if project_path.exists():
-            self.project_title = extract_first_heading(project_path.read_text(encoding="utf-8")) or self.repo_root.name
+            descriptor, descriptor_issues = load_project_descriptor(self.planning_root)
+            if descriptor is not None:
+                self.project_title = descriptor.project_name
+                self.project_key = descriptor.project_key
+                self.implementation_roots = descriptor.implementation_roots
+            else:
+                self.project_title = extract_first_heading(project_path.read_text(encoding="utf-8")) or self.repo_root.name
+
+            for issue in descriptor_issues:
+                self.error(issue.message, issue.path)
 
         specs_root = self.planning_root / "specs"
         if not specs_root.exists():
@@ -516,11 +566,21 @@ def discover_plan_roots(target: Path) -> list[Path]:
     if is_planning_root(direct):
         return [direct]
 
+    return find_nested_plan_roots(direct)
+
+
+def find_nested_plan_roots(search_root: Path) -> list[Path]:
+    if not search_root.exists() or not search_root.is_dir():
+        return []
+
     roots: list[Path] = []
-    if direct.exists() and direct.is_dir():
-        for child in sorted(direct.iterdir()):
-            if child.is_dir() and is_planning_root(child):
-                roots.append(child)
+    for child in sorted(search_root.iterdir()):
+        if not child.is_dir():
+            continue
+        if is_planning_root(child):
+            roots.append(child)
+            continue
+        roots.extend(find_nested_plan_roots(child))
     return roots
 
 
@@ -543,6 +603,205 @@ def find_repo_root(start: Path) -> Path:
         if current.parent == current:
             return start.parent
         current = current.parent
+
+
+def slugify_project_key(value: str) -> str:
+    lowered = value.strip().lower().replace("_", "-")
+    slug = re.sub(r"[^a-z0-9]+", "-", lowered).strip("-")
+    return re.sub(r"-{2,}", "-", slug)
+
+
+def json_quote(value: str) -> str:
+    escaped = (
+        value.replace("\\", "\\\\")
+        .replace('"', '\\"')
+        .replace("\b", "\\b")
+        .replace("\f", "\\f")
+        .replace("\n", "\\n")
+        .replace("\r", "\\r")
+        .replace("\t", "\\t")
+    )
+    return f'"{escaped}"'
+
+
+def json_dumps(value: object, indent: int = 0) -> str:
+    if value is None:
+        return "null"
+    if value is True:
+        return "true"
+    if value is False:
+        return "false"
+    if isinstance(value, str):
+        return json_quote(value)
+    if isinstance(value, (int, float)):
+        return str(value)
+    if isinstance(value, list):
+        if not value:
+            return "[]"
+        inner = []
+        for index, item in enumerate(value):
+            comma = "," if index < len(value) - 1 else ""
+            inner.append(f"{' ' * (indent + 2)}{json_dumps(item, indent + 2)}{comma}")
+        return "[\n" + "\n".join(inner) + f"\n{' ' * indent}]"
+    if isinstance(value, dict):
+        if not value:
+            return "{}"
+        items = list(value.items())
+        inner = []
+        for index, (key, item) in enumerate(items):
+            comma = "," if index < len(items) - 1 else ""
+            inner.append(f"{' ' * (indent + 2)}{json_quote(key)}: {json_dumps(item, indent + 2)}{comma}")
+        return "{\n" + "\n".join(inner) + f"\n{' ' * indent}}}"
+    raise TypeError(f"Unsupported JSON value: {type(value)!r}")
+
+
+def derive_project_key(plan_root: Path, project_name: str, host_root: Path) -> str:
+    relative_plan_root = relative_to_repo(plan_root, host_root).replace("\\", "/")
+    if relative_plan_root == "planning":
+        basis = project_name
+    elif relative_plan_root.startswith("planning/"):
+        basis = relative_plan_root[len("planning/"):].replace("/", "-")
+    else:
+        basis = plan_root.name
+
+    return slugify_project_key(basis) or "project"
+
+
+def normalize_implementation_root(value: str, host_root: Path) -> str:
+    raw_value = value.strip().replace("\\", "/")
+    if not raw_value:
+        raise ValueError("implementation roots must not contain empty entries")
+    if raw_value.startswith("/"):
+        raise ValueError(f"implementation root must be relative to the host root: {value}")
+    if re.match(r"^[A-Za-z]:", raw_value):
+        raise ValueError(f"implementation root must be relative to the host root: {value}")
+
+    escaped_host = False
+    normalized_parts: list[str] = []
+    for segment in raw_value.split("/"):
+        if segment in {"", "."}:
+            continue
+        if segment == "..":
+            if normalized_parts:
+                normalized_parts.pop()
+            else:
+                escaped_host = True
+            continue
+        normalized_parts.append(segment)
+
+    normalized = "/".join(normalized_parts) or "."
+    if escaped_host:
+        raise ValueError(f"implementation root must stay within the host root: {value}")
+
+    resolved_host_root = host_root.resolve()
+    resolved_candidate = (resolved_host_root / normalized).resolve()
+
+    try:
+        resolved_candidate.relative_to(resolved_host_root)
+    except ValueError as error:
+        raise ValueError(f"implementation root must stay within the host root: {value}") from error
+
+    return normalized
+
+
+def normalize_implementation_roots(value: object, host_root: Path) -> list[str]:
+    if value is None:
+        return []
+
+    if not isinstance(value, list):
+        raise ValueError("implementation_roots must be a list of paths")
+
+    raw_values = value
+
+    normalized_roots: list[str] = []
+    seen: set[str] = set()
+
+    for item in raw_values:
+        if not isinstance(item, str):
+            raise ValueError("implementation_roots must contain only strings")
+        normalized = normalize_implementation_root(item, host_root)
+        if normalized in seen:
+            continue
+        seen.add(normalized)
+        normalized_roots.append(normalized)
+
+    return normalized_roots
+
+
+def load_project_descriptor(plan_root: Path) -> tuple[ProjectDescriptor | None, list[Issue]]:
+    project_path = plan_root / "PROJECT.md"
+    issues: list[Issue] = []
+    if not project_path.exists():
+        issues.append(Issue("missing required planning artifact: PROJECT.md", project_path))
+        return None, issues
+
+    try:
+        metadata, body = read_markdown_file(project_path)
+    except ValueError as error:
+        issues.append(Issue(f"invalid frontmatter: {error}", project_path))
+        return None, issues
+
+    host_root = find_repo_root(plan_root)
+    project_name = extract_first_heading(body) or extract_first_heading(project_path.read_text(encoding="utf-8")) or plan_root.name
+    explicit_project_key = metadata.get("project_key")
+
+    if explicit_project_key is None:
+        project_key = derive_project_key(plan_root, project_name, host_root)
+        project_key_source = "derived"
+    else:
+        if not isinstance(explicit_project_key, str) or not explicit_project_key.strip():
+            issues.append(Issue("project_key must be a non-empty string", project_path))
+            return None, issues
+        project_key = explicit_project_key.strip()
+        project_key_source = "explicit"
+
+    if not PROJECT_KEY_PATTERN.fullmatch(project_key):
+        issues.append(Issue(f"invalid project key '{project_key}'", project_path))
+
+    try:
+        implementation_roots = normalize_implementation_roots(metadata.get("implementation_roots"), host_root)
+    except ValueError as error:
+        issues.append(Issue(str(error), project_path))
+        return None, issues
+
+    project_id = str(metadata.get("id", "")).strip() or None
+    method = str(metadata.get("method", "")).strip() or None
+    method_version = str(metadata.get("method_version", "")).strip() or None
+
+    descriptor = ProjectDescriptor(
+        project_key=project_key,
+        project_key_source=project_key_source,
+        project_name=project_name,
+        project_id=project_id,
+        method=method,
+        method_version=method_version,
+        plan_root=plan_root,
+        host_root=host_root,
+        implementation_roots=implementation_roots,
+        project_path=project_path,
+    )
+    return descriptor, issues
+
+
+def collect_project_descriptors(roots: list[Path]) -> tuple[list[ProjectDescriptor], list[Issue]]:
+    descriptors: list[ProjectDescriptor] = []
+    issues: list[Issue] = []
+
+    for root in roots:
+        descriptor, descriptor_issues = load_project_descriptor(root)
+        issues.extend(descriptor_issues)
+        if descriptor is not None:
+            descriptors.append(descriptor)
+
+    by_key: dict[str, ProjectDescriptor] = {}
+    for descriptor in descriptors:
+        existing = by_key.get(descriptor.project_key)
+        if existing is not None:
+            issues.append(Issue(f"duplicate project key: {descriptor.project_key}", descriptor.project_path))
+            continue
+        by_key[descriptor.project_key] = descriptor
+
+    return descriptors, issues
 
 
 def read_markdown_file(path: Path) -> tuple[dict[str, object], str]:
@@ -576,14 +835,63 @@ def parse_frontmatter(content: str) -> tuple[dict[str, object], str]:
 
 def parse_simple_yaml(lines: list[str]) -> dict[str, object]:
     data: dict[str, object] = {}
-    for raw_line in lines:
+    index = 0
+    while index < len(lines):
+        raw_line = lines[index]
         line = raw_line.strip()
         if not line or line.startswith("#"):
+            index += 1
             continue
+        indent = len(raw_line) - len(raw_line.lstrip(" "))
+        if indent != 0:
+            raise ValueError(f"invalid frontmatter line: {raw_line}")
         if ":" not in line:
             raise ValueError(f"invalid frontmatter line: {raw_line}")
         key, value = raw_line.split(":", 1)
-        data[key.strip()] = parse_yaml_value(value.strip())
+        stripped_value = value.strip()
+        if stripped_value:
+            data[key.strip()] = parse_yaml_value(stripped_value)
+            index += 1
+            continue
+
+        lookahead = index + 1
+        has_block_list = False
+        while lookahead < len(lines):
+            lookahead_line = lines[lookahead].strip()
+            if not lookahead_line or lookahead_line.startswith("#"):
+                lookahead += 1
+                continue
+            lookahead_indent = len(lines[lookahead]) - len(lines[lookahead].lstrip(" "))
+            if lookahead_indent == 0:
+                break
+            has_block_list = True
+            break
+
+        if not has_block_list:
+            data[key.strip()] = ""
+            index += 1
+            continue
+
+        values: list[object] = []
+        index += 1
+        while index < len(lines):
+            child_raw_line = lines[index]
+            child_line = child_raw_line.strip()
+            if not child_line or child_line.startswith("#"):
+                index += 1
+                continue
+            child_indent = len(child_raw_line) - len(child_raw_line.lstrip(" "))
+            if child_indent == 0:
+                break
+            if child_line == "[]":
+                index += 1
+                break
+            if not child_line.startswith("- "):
+                raise ValueError(f"invalid frontmatter line: {child_raw_line}")
+            values.append(parse_yaml_value(child_line[2:].strip()))
+            index += 1
+
+        data[key.strip()] = values
     return data
 
 
@@ -976,16 +1284,20 @@ def print_report(validator: Validator) -> int:
         return 0
 
     print(f"PSM validation failed for {validator.repo_root}")
-    for issue in validator.issues:
+    print_issue_lines(validator.repo_root, validator.issues)
+    return 1
+
+
+def print_issue_lines(root: Path, issues: list[Issue]) -> None:
+    for issue in issues:
         if issue.path:
             try:
-                relative_path = issue.path.relative_to(validator.repo_root)
+                relative_path = issue.path.relative_to(root)
             except ValueError:
                 relative_path = issue.path
             print(f"- {relative_path}: {issue.message}")
-        else:
-            print(f"- {issue.message}")
-    return 1
+            continue
+        print(f"- {issue.message}")
 
 
 def run_validate(args: argparse.Namespace) -> int:
@@ -995,8 +1307,14 @@ def run_validate(args: argparse.Namespace) -> int:
             print(f"No plan roots found under {Path(args.path).resolve()}", file=sys.stderr)
             return 1
         exit_code = 0
+        host_root = find_repo_root(roots[0])
+        _, descriptor_issues = collect_project_descriptors(roots)
+        if descriptor_issues:
+            print(f"PSM validation failed for {host_root}")
+            print_issue_lines(host_root, descriptor_issues)
+            exit_code = 1
         for index, root in enumerate(roots):
-            if index > 0:
+            if index > 0 or descriptor_issues:
                 print("")
             print(f"# {root}")
             validator = Validator(root, strict=args.strict)
@@ -1076,6 +1394,39 @@ def run_next_id(args: argparse.Namespace) -> int:
     return 0
 
 
+def run_projects(args: argparse.Namespace) -> int:
+    roots = discover_plan_roots(Path(args.path))
+    if not roots:
+        print(f"No plan roots found under {Path(args.path).resolve()}", file=sys.stderr)
+        return 1
+
+    descriptors, issues = collect_project_descriptors(roots)
+    host_root = find_repo_root(roots[0])
+    if issues:
+        print(f"PSM validation failed for {host_root}")
+        print_issue_lines(host_root, issues)
+        return 1
+
+    if args.json:
+        print(json_dumps({
+            "hostRoot": str(host_root),
+            "projects": [descriptor.to_dict() for descriptor in descriptors],
+        }))
+        return 0
+
+    print(f"Projects for {host_root}")
+    for descriptor in descriptors:
+        print(f"- {descriptor.project_key}")
+        print(f"  Name: {descriptor.project_name}")
+        print(f"  Plan root: {relative_to_repo(descriptor.plan_root, host_root).replace('\\', '/')}")
+        if descriptor.implementation_roots:
+            print(f"  Implementation roots: {', '.join(descriptor.implementation_roots)}")
+        else:
+            print("  Implementation roots: none")
+
+    return 0
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="Validate a Project Slice Method planning tree.")
     subparsers = parser.add_subparsers(dest="command", required=True)
@@ -1085,6 +1436,11 @@ def build_parser() -> argparse.ArgumentParser:
     validate_parser.add_argument("--strict", action="store_true")
     validate_parser.add_argument("--all", dest="all_roots", action="store_true", help="Discover and validate every plan root under the path.")
     validate_parser.set_defaults(handler=run_validate)
+
+    projects_parser = subparsers.add_parser("projects", help="List discovered project descriptors.")
+    projects_parser.add_argument("path", nargs="?", default=".")
+    projects_parser.add_argument("--json", action="store_true")
+    projects_parser.set_defaults(handler=run_projects)
 
     status_parser = subparsers.add_parser("status", help="Print machine-derived project status.")
     status_parser.add_argument("path", nargs="?", default=".")

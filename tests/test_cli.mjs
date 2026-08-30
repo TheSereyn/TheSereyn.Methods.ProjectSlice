@@ -1,18 +1,82 @@
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
-import { existsSync, mkdirSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
+import { cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import test from "node:test";
 import { fileURLToPath } from "node:url";
 
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
+const fixtureRoot = path.join(repoRoot, "examples", "local-first-documents");
 
 function runCli(args) {
     return spawnSync("node", ["bin/psm.js", ...args], {
         cwd: repoRoot,
         encoding: "utf8"
     });
+}
+
+function writeProjectFile(projectRoot, projectName, projectKey, implementationRoots) {
+    const implementationSection = implementationRoots.length === 0
+        ? "implementation_roots: []"
+        : `implementation_roots:\n${implementationRoots.map((item) => `  - ${item}`).join("\n")}`;
+
+    writeFileSync(path.join(projectRoot, "PROJECT.md"), `---
+type: project
+id: PROJECT
+project_key: ${projectKey}
+method: psm
+method_version: 0.2
+${implementationSection}
+---
+
+# ${projectName}
+
+## Purpose
+
+Describe why this project exists.
+
+## Outcomes
+
+- Deliver one observable result.
+
+## Scope
+
+- Descriptor discovery.
+
+## Non-Goals
+
+- Lifecycle transitions.
+
+## Principles
+
+- Keep durable state in repository files.
+
+## Constraints
+
+- None.
+
+## Success
+
+- psm projects reports deterministic project descriptors.
+`, "utf8");
+}
+
+function createMultiProjectHost(projects = [
+    { slug: "product-a", projectName: "Product A", projectKey: "product-a", implementationRoots: ["repos/product-a"] },
+    { slug: "product-b", projectName: "Product B", projectKey: "product-b", implementationRoots: ["repos/product-b", "repos/shared/auth"] }
+]) {
+    const sandboxRoot = mkdtempSync(path.join(tmpdir(), "psm-projects-"));
+    const target = path.join(sandboxRoot, "workspace");
+    mkdirSync(path.join(target, ".git"), { recursive: true });
+
+    for (const project of projects) {
+        const projectRoot = path.join(target, "planning", project.slug);
+        cpSync(path.join(fixtureRoot, "planning"), projectRoot, { recursive: true });
+        writeProjectFile(projectRoot, project.projectName, project.projectKey, project.implementationRoots);
+    }
+
+    return target;
 }
 
 test("inspect lists the bundle surface", () => {
@@ -108,8 +172,6 @@ test("init merge appends one managed block and cleans up stale merge snippets", 
 });
 
 test("CLI exposes status, trace, and milestone for an example fixture", () => {
-    const fixtureRoot = path.join(repoRoot, "examples", "local-first-documents");
-
     const statusResult = runCli(["status", fixtureRoot]);
     assert.equal(statusResult.status, 0, statusResult.stderr || statusResult.stdout);
     assert.match(statusResult.stdout, /Project status for Local-First Documents/);
@@ -153,4 +215,42 @@ test("init supports more than one target repository in one invocation", () => {
     assert.equal(initResult.status, 0, initResult.stderr || initResult.stdout);
     assert.ok(existsSync(path.join(firstTarget, "planning", "PROJECT.md")));
     assert.ok(existsSync(path.join(secondTarget, "planning", "PROJECT.md")));
+});
+
+test("projects lists a filesystem-discovered example repo", () => {
+    const result = runCli(["projects", fixtureRoot]);
+    assert.equal(result.status, 0, result.stderr || result.stdout);
+    assert.match(result.stdout, /Projects for/);
+    assert.match(result.stdout, /local-first-documents/);
+    assert.match(result.stdout, /Plan root: planning/);
+    assert.match(result.stdout, /Implementation roots: none/);
+});
+
+test("projects --json returns multiple descriptors with implementation roots", () => {
+    const target = createMultiProjectHost();
+
+    const result = runCli(["projects", target, "--json"]);
+    assert.equal(result.status, 0, result.stderr || result.stdout);
+
+    const output = JSON.parse(result.stdout);
+    assert.equal(output.projects.length, 2);
+    assert.deepEqual(output.projects.map((project) => project.projectKey), ["product-a", "product-b"]);
+    assert.deepEqual(output.projects.map((project) => project.planRoot), ["planning/product-a", "planning/product-b"]);
+    assert.deepEqual(output.projects[0].implementationRoots, ["repos/product-a"]);
+    assert.deepEqual(output.projects[1].implementationRoots, ["repos/product-b", "repos/shared/auth"]);
+    assert.equal(output.projects[0].projectKeySource, "explicit");
+});
+
+test("projects discovers nested plan roots under planning", () => {
+    const target = createMultiProjectHost([
+        { slug: "identity/service", projectName: "Identity Service", projectKey: "identity-service", implementationRoots: ["repos/identity-service"] },
+        { slug: "site/content", projectName: "Site Content", projectKey: "site-content", implementationRoots: ["repos/site-content"] }
+    ]);
+
+    const result = runCli(["projects", target, "--json"]);
+    assert.equal(result.status, 0, result.stderr || result.stdout);
+
+    const output = JSON.parse(result.stdout);
+    assert.deepEqual(output.projects.map((project) => project.planRoot), ["planning/identity/service", "planning/site/content"]);
+    assert.deepEqual(output.projects.map((project) => project.projectKey), ["identity-service", "site-content"]);
 });

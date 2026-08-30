@@ -1,9 +1,11 @@
 ---
 type: project
 id: PROJECT
+project_key: {{PROJECT_KEY}}
 method: psm
 method_version: {{METHOD_VERSION}}
 initialized_by: @thesereyn/psm@{{PACKAGE_VERSION}}
+implementation_roots: []
 ---
 
 # {{PROJECT_NAME}}

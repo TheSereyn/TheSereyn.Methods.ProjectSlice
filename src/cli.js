@@ -1,4 +1,5 @@
 import { access, cp, mkdir, readFile, readdir, stat, unlink, writeFile } from "node:fs/promises";
+import { existsSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { spawnSync } from "node:child_process";
@@ -40,6 +41,8 @@ export async function run(argv, options = {}) {
             return doctorProject(io, args);
         case "validate":
             return validateProject(io, args);
+        case "projects":
+            return listProjects(io, args);
         case "status":
             return statusProject(io, args);
         case "trace":
@@ -321,6 +324,33 @@ async function statusProject(io, args) {
     return failures === 0 ? 0 : 1;
 }
 
+async function listProjects(io, args) {
+    const { positionals, flags } = parseArgs(args);
+    const targets = positionals.length > 0 ? positionals : ["."];
+
+    if (flags.json === true && targets.length > 1) {
+        io.error("projects --json accepts only one target path.");
+        return 1;
+    }
+
+    let failures = 0;
+
+    for (let index = 0; index < targets.length; index += 1) {
+        const targetRoot = path.resolve(targets[index]);
+        const repoRoot = await findOwningRepoRoot(targetRoot);
+        const result = runValidatorCommand(repoRoot, "projects", [targetRoot, ...(flags.json ? ["--json"] : [])]);
+        relayCommandOutput(io, result);
+        if (result.status !== 0) {
+            failures += 1;
+        }
+        if (flags.json !== true && index < targets.length - 1) {
+            io.log("");
+        }
+    }
+
+    return failures === 0 ? 0 : 1;
+}
+
 async function traceSlice(io, args) {
     const { positionals, flags } = parseArgs(args);
     const sliceId = positionals[0];
@@ -488,6 +518,7 @@ async function installPackageIntoTarget(io, sourcePackage, targetRoot, projectNa
     const planningRoot = normalizePlanningRoot(flags.planningRoot ?? defaultPlanningRoot);
     const replacements = {
         "{{PROJECT_NAME}}": projectName,
+        "{{PROJECT_KEY}}": deriveProjectKey(projectName, planningRoot),
         "{{DATE}}": new Date().toISOString().slice(0, 10),
         "{{PACKAGE_VERSION}}": sourcePackage.toolkit.version,
         "{{METHOD_VERSION}}": sourcePackage.toolkit.methodVersion,
@@ -618,6 +649,20 @@ function applyReplacements(input, replacements) {
     return Object.entries(replacements).reduce((content, [token, value]) => {
         return content.split(token).join(value);
     }, input);
+}
+
+function deriveProjectKey(projectName, planningRoot) {
+    const source = planningRoot === defaultPlanningRoot
+        ? projectName
+        : planningRoot.replace(/^planning\//, "").replace(/\//g, "-");
+    const slug = source
+        .trim()
+        .toLowerCase()
+        .replace(/_/g, "-")
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/^-+|-+$/g, "")
+        .replace(/-+/g, "-");
+    return slug || "project";
 }
 
 async function writeStateFiles(targetRoot, installState) {
@@ -784,6 +829,8 @@ function printHelp(io) {
     io.log("                            Check bootstrapped repositories and validate each discovered plan root.");
     io.log("  validate [path...] [--planning-root planning/foo] [--all] [--strict]");
     io.log("                            Run the structural validator through the CLI.");
+    io.log("  projects [path] [--json]");
+    io.log("                            List discovered project descriptors for a host or plan root.");
     io.log("  status [path...] [--planning-root planning/foo] [--all]");
     io.log("                            Print machine-derived project status for one or more plan roots.");
     io.log("  trace <slice-id> [path] [--planning-root planning/foo]");
@@ -1224,7 +1271,10 @@ function runValidatorCommand(targetRoot, command, args) {
 
 function resolveValidatorPath(targetRoot) {
     const localValidator = path.join(targetRoot, "scripts", "psm", "validate_psm.py");
-    return localValidator;
+    if (existsSync(localValidator)) {
+        return localValidator;
+    }
+    return path.join(packageRoot, "scripts", "psm", "validate_psm.py");
 }
 
 function relayValidatorResult(io, planRoot, result, repoRoot = null) {

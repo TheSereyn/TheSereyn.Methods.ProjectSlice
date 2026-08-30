@@ -37,6 +37,13 @@ These files are created from templates during bootstrap and then become part of 
 
 The installer should not silently overwrite these artifacts once they have been edited.
 
+`PROJECT.md` frontmatter may also declare project-scoped metadata used for multi-project hosts:
+
+- `project_key` as the stable host-wide project identifier;
+- `implementation_roots` as a host-relative list of intended code-change roots.
+
+When `project_key` is absent, PSM can derive a provisional key from the plan-root slug or project title for read-only discovery.
+
 If `.github/copilot-instructions.md` already exists, the default install mode preserves it and writes a merge-ready PSM snippet to `.psm/copilot-instructions.snippet.md` instead of editing the file. Once the managed PSM block is merged, or a later run finds the same managed block already present, PSM removes that temporary snippet.
 
 ## Multi-plan layout
@@ -47,6 +54,8 @@ Examples:
 
 - `planning/` for a single-plan repository.
 - `planning/project-one/` and `planning/project-two/` for a repository that carries more than one plan.
+
+For multi-project hosts, keep each plan root's `PROJECT.md` metadata scoped to that project. `implementation_roots` stay relative to the host root rather than the plan root.
 
 Use `.psm/` for tool state, not as the primary location for project artifacts.
 
