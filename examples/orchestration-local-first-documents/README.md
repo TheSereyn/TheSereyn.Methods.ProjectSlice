@@ -1,6 +1,6 @@
-# Orchestration Fixture — Local-First Documents
+# Orchestration fixture for local-first documents
 
-This fixture exercises the Project Slice Method workflow across several role-specific stages without requiring a live Copilot runtime.
+This fixture exercises the Project Slice Method workflow across several role-specific stages without requiring an interactive Copilot session.
 
 ## Structure
 
@@ -17,19 +17,8 @@ This fixture exercises the Project Slice Method workflow across several role-spe
 
 ## Intent
 
-The fixture is designed to prove two things:
+The fixture covers three areas:
 
 1. the CLI and validator can inspect realistic plan states;
-2. each workflow stage changes only the artifact categories it should own.
-
-It now also proves the user-facing orchestration layer:
-
-1. the Project Manager remains the only normal user entry point;
-2. natural-language intents map to stable internal routes and approval gates;
-3. tangent capture preserves scope instead of silently reshaping the roadmap.
-
-It also now proves the automation layer:
-
-1. hook files are present and structurally valid;
-2. prompt shortcuts exist for the main Project Manager entry points;
-3. session-start context, destructive-command guarding, and stop-time validation behave as expected against fixture repos.
+2. each workflow stage changes only the artifact categories it should own;
+3. the orchestration and automation layers behave as expected, including stable routing, tangent capture, hook files, prompt shortcuts, session-start context, destructive-command guarding, and stop-time validation.

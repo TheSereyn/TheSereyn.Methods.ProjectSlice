@@ -15,7 +15,7 @@ A user can find a previously saved document by title and open it.
 
 ## Context
 
-This slice builds on persisted documents from S-001 and remains intentionally narrower than full-text or typo-tolerant search.
+This slice builds on persisted documents from S-001 and focuses on title-based search rather than full-text or typo-tolerant search.
 
 ## Scope
 

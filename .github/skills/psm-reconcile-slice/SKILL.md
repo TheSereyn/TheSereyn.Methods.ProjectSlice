@@ -24,7 +24,7 @@ After verification passes:
 1. update the slice and roadmap statuses;
 2. update any affected milestone state;
 3. add durable decisions if later work will need the rationale;
-4. update `planning/system/` so the current system is understandable without chat history;
+4. update `planning/system/` so the current system is understandable without prior conversation context;
 5. capture follow-up work in the Inbox or Backlog;
 6. rerun `python3 scripts/psm/validate_psm.py validate --strict`.
 

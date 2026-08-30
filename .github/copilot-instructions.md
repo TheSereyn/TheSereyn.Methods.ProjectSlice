@@ -1,10 +1,10 @@
-# TheSereyn.Methods.ProjectSlice — Copilot Instructions
+# Project Slice Method Copilot instructions
 
 ## Project identity
 
 This repository is the public home for the Project Slice Method, a planning-first, slice-based project delivery methodology.
 
-This repo is intentionally lightweight at the start. Keep the work focused, readable, and easy to understand without requiring a specialized project tool.
+Keep the work focused, readable, and easy to understand without requiring a specialized project tool.
 
 ## Naming and domain
 
@@ -14,7 +14,7 @@ This repo is intentionally lightweight at the start. Keep the work focused, read
 
 ## Working rules
 
-- Treat durable project state as repository files rather than chat history.
+- Treat durable project state as repository files rather than conversation history.
 - Favor simple, Markdown-first planning artifacts.
 - Keep the method understandable without a dedicated PM tool.
 - Preserve clear boundaries between project intent, roadmap, active slice, backlog, and inbox.

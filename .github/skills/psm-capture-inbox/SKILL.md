@@ -9,7 +9,7 @@ description: "Capture a useful idea or tangent that is outside the active Projec
 
 - the idea or tangent to retain;
 - the active plan root;
-- the current slice or conversation context when known.
+- the current slice or request context when known.
 
 ## Outputs
 

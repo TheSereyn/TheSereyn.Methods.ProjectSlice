@@ -1,10 +1,10 @@
-# Package Lifecycle
+# Package lifecycle
 
-Project Slice Method now ships a basic package lifecycle for managed assets.
+Project Slice Method ships a basic package lifecycle for managed assets.
 
-## What is supported now
+## Supported commands
 
-The current lifecycle surface is intentionally narrow and practical:
+The current lifecycle surface is small:
 
 - `inspect [source]`
 - `add <source> [target]`
@@ -21,7 +21,7 @@ Supported now:
 - the current package itself;
 - a local filesystem path to another installable package repository.
 
-Deferred for later:
+Planned later:
 
 - GitHub repository resolution such as `owner/repo` or tagged remote installs;
 - package registry or remote release resolution beyond the current CLI package itself.
@@ -55,16 +55,16 @@ This keeps `add` distinct from `init`:
 
 `sync [target]` reapplies package-managed assets from the recorded lifecycle source.
 
-This is intended for:
+Use it to:
 
-- restoring managed files that are missing or drifted;
-- reapplying agents, skills, hooks, prompts, instructions, workflows, or scripts that belong to a package.
+- restore managed files that are missing or drifted;
+- reapply agents, skills, hooks, prompts, instructions, workflows, or scripts that belong to a package.
 
-`sync` **preserves local edits by default**. Each managed file is compared against a baseline hash recorded at install time:
+`sync` preserves local edits by default. Each managed file is compared against a baseline hash recorded at install time:
 
 - files that match the recorded package version are left untouched;
-- files that were changed in the source are refreshed;
-- files you edited locally are **preserved** and reported as `preserve-local`.
+- files that changed in the source are refreshed;
+- files you edited locally are preserved and reported as `preserve-local`.
 
 To overwrite local edits and restore the package version, pass `--force`. To preview what would change without writing anything, pass `--dry-run`. It never silently overwrites project-owned planning files.
 
@@ -74,7 +74,7 @@ To overwrite local edits and restore the package version, pass `--force`. To pre
 
 For local path sources, this means the target can follow changes made in that local package repository.
 
-`update` uses the same local-edit preservation as `sync`, so `--force` and `--dry-run` apply here too. It additionally supports `--prune`: when the package stops shipping a managed file, `update --prune` removes the stale file from the target, but only when the local copy still matches its recorded baseline (or `--force` is also given). Stale files you modified locally are kept and reported.
+`update` uses the same local-edit preservation as `sync`, so `--force` and `--dry-run` apply here too. It also supports `--prune`: when the package stops shipping a managed file, `update --prune` removes the stale file from the target, but only when the local copy still matches its recorded baseline, or when `--force` is also given. Stale files you modified locally are kept and reported.
 
 ### `diff`
 
@@ -86,11 +86,11 @@ It reports:
 - `MISSING`
 - `STALE`
 
-This is intentionally scoped to package-managed files. Project-owned plan artifacts and the main instructions file remain user-owned and are not treated as package drift by default.
+This is scoped to package-managed files. Project-owned plan artifacts and the main instructions file remain user-owned and are not treated as package drift by default.
 
 ## Install-state model
 
-The `.psm/` directory now records package lifecycle metadata per installed package.
+The `.psm/` directory records package lifecycle metadata per installed package.
 
 The important fields are:
 
@@ -107,13 +107,13 @@ This keeps lifecycle operations deterministic without moving the project plan it
 ## Safety model
 
 - package-managed assets may be refreshed by lifecycle commands, but local edits are preserved by default and only replaced with `--force`;
-- `sync`/`update` distinguish local edits from upstream changes using the recorded baseline hashes, so re-running a lifecycle command does not clobber work in progress;
+- `sync` and `update` distinguish local edits from upstream changes using the recorded baseline hashes, so re-running a lifecycle command does not clobber work in progress;
 - `--dry-run` previews changes without writing, and `update --prune` removes stale managed files only when they still match their baseline;
 - project-owned planning artifacts are not automatically overwritten;
 - `.github/copilot-instructions.md` remains treated as project-owned and uses the existing preserve or merge behavior.
 
-## Practical limitation
+## Current limitation
 
-The current lifecycle work is enough to manage local development and packaging iteration for PSM itself.
+The current lifecycle surface is enough for local development and packaging iteration.
 
-Remote source resolution is intentionally deferred until the package contract and consumer expectations are stable enough to justify it.
+Remote source resolution remains deferred until the package contract and consumer expectations are stable enough to support it cleanly.

@@ -1,4 +1,4 @@
-# Getting Started
+# Getting started
 
 This repository supports both documentation-led adoption and installer-led adoption.
 
@@ -51,7 +51,7 @@ After bootstrapping a project, the initial work should usually be:
 4. keep unrelated ideas in the active plan root `INBOX.md`;
 5. validate before treating the planning state as ready.
 
-The packaged prompt shortcuts can help with common entry points once the repo is bootstrapped:
+The packaged prompt shortcuts can help with common entry points once the repository is bootstrapped:
 
 - `/project-status`
 - `/capture-idea`
@@ -61,13 +61,13 @@ The packaged prompt shortcuts can help with common entry points once the repo is
 
 ## Multi-plan repositories
 
-The recommended convention is to keep plans visible under `planning/`.
+Keep plan roots visible under `planning/`.
 
 Examples:
 
 - `node bin/psm.js init ../repo --planning-root planning`
-- `node bin/psm.js init ../repo --planning-root planning/site-web`
-- `node bin/psm.js init ../repo --planning-root planning/site-content`
+- `node bin/psm.js init ../repo --planning-root planning/project-one`
+- `node bin/psm.js init ../repo --planning-root planning/project-two`
 
 If you want to initialize more than one repository from the same workspace command, pass more than one target path:
 
@@ -81,9 +81,9 @@ If the target repository already has its own Copilot instructions file and you w
 node bin/psm.js init ../repo --instructions-mode merge
 ```
 
-## Installer model
+## Installer status
 
-The intended public command is:
+The published installer command will be:
 
 ```bash
 npx @thesereyn/project-slice-method init
@@ -118,13 +118,13 @@ The validator currently supports:
 - `coverage <slice-id>`: requirement-to-task coverage for a slice;
 - `next-id <type>`: next available stable ID for slices, milestones, inbox items, backlog items, capabilities, and decisions.
 
-The CLI now exposes those commands directly and can scope them to a selected plan root.
+The CLI exposes those commands directly and can scope them to a selected plan root.
 
 The validator is deterministic. It checks repository structure and traceability rules; it does not decide project intent.
 
 ## Lifecycle surface
 
-The CLI now also exposes package lifecycle commands for managed assets:
+The CLI also exposes package lifecycle commands for managed assets:
 
 - `inspect [source]`
 - `add <source> [target]`
@@ -136,11 +136,11 @@ See [lifecycle.md](lifecycle.md) for scope and limitations.
 
 ## Automation surface
 
-Bootstrapped repositories now also receive optional hardening assets:
+Bootstrapped repositories also receive optional hardening assets:
 
 - session-start context injection;
 - a narrow destructive-command guard for shell tool use;
 - stop-time structural validation;
 - Project Manager prompt shortcuts.
 
-See [automation.md](automation.md) for the details and caveats.
+See [automation.md](automation.md) for details and limits.

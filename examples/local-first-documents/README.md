@@ -1,8 +1,8 @@
-# Local-First Documents Example
+# Local-first documents example
 
 This worked example demonstrates a valid Project Slice Method planning tree for a small document application.
 
-It is intentionally small but exercises the main structural relationships:
+It stays small while covering the main structural relationships:
 
 - whole-project intent;
 - capabilities;

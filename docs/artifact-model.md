@@ -1,6 +1,6 @@
-# Artifact Model
+# Artifact model
 
-Project Slice Method keeps durable state in ordinary repository files. This repository ships both reusable package assets and project-owned planning artifacts.
+Project Slice Method keeps durable state in ordinary repository files. This repository also ships reusable package assets that help apply the method in other repositories.
 
 ## Package-owned assets
 
@@ -15,11 +15,11 @@ These files are copied into a target repository as reusable tooling and behavior
 - `scripts/psm/validate_psm.py`
 - `scripts/psm/hook_runner.mjs`
 
-The current CLI records these files as managed assets in `.psm/manifest.json` and `.psm/lock.json`. `sync`, `update`, and `diff` use that state to update or compare managed files without guessing.
+The CLI records these files as managed assets in `.psm/manifest.json` and `.psm/lock.json`. `sync`, `update`, and `diff` use that state to update or compare managed files without guessing.
 
 ## Project-owned artifacts
 
-These files are created from templates during bootstrap and then become part of the user's repository state.
+These files are created from templates during bootstrap and then become part of the project's own planning state.
 
 - `.github/copilot-instructions.md`
 - the selected plan root under `planning/`
@@ -41,18 +41,18 @@ If `.github/copilot-instructions.md` already exists, the default install mode pr
 
 ## Multi-plan layout
 
-The common convention is to keep all user-owned plans under `planning/`.
+Keep user-owned plans under `planning/`.
 
 Examples:
 
 - `planning/` for a single-plan repository.
-- `planning/site-web/` and `planning/site-content/` for a repository that carries more than one plan.
+- `planning/project-one/` and `planning/project-two/` for a repository that carries more than one plan.
 
-Avoid using `.psm/` as the primary location for project artifacts. Hidden directories are a better fit for tool-owned metadata than for the visible project model.
+Use `.psm/` for tool state, not as the primary location for project artifacts.
 
 ## Daily working set
 
-Although the repository may contain many planning files, normal daily navigation should stay focused on:
+Although a repository may contain many planning files, normal daily navigation should stay focused on:
 
 - `planning/PROJECT.md`
 - `planning/ROADMAP.md`
@@ -72,7 +72,7 @@ This state is intended to be committed to source control. It records what bundle
 
 It also records the configured plan roots so the CLI can validate or doctor more than one plan within the same repository.
 
-The lifecycle state now also tracks installed packages individually, including:
+The lifecycle state also tracks installed packages individually, including:
 
 - package version;
 - source type;

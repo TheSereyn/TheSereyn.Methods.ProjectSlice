@@ -15,7 +15,7 @@ description: "Initialize or normalize a repository to use Project Slice Method. 
 
 - a selected plan root with the minimum PSM file contract in place;
 - an initial or normalized `PROJECT.md`, `ROADMAP.md`, and `INBOX.md`;
-- clear unknowns recorded in durable files rather than left in chat;
+- clear unknowns recorded in durable files rather than left in conversation context;
 - a validation result or a concise blocking finding.
 
 ## Procedure

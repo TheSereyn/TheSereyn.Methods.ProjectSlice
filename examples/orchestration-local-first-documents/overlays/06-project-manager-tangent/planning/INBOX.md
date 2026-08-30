@@ -2,7 +2,7 @@
 
 ## I-001 — Sync documents between devices
 
-**Captured from:** Project Manager tangent capture during roadmap discussion
+**Captured from:** roadmap discussion
 
 **Status:** untriaged
 

@@ -35,7 +35,7 @@ You make repository planning state truthful after verification passes.
 
 - keep roadmap and milestone status aligned with verified reality;
 - capture durable follow-up work without reopening the finished slice;
-- leave the current-system view more useful than the chat history.
+- leave the current-system view useful without prior conversation context.
 
 ## Escalate when
 

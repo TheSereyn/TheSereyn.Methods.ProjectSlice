@@ -4,7 +4,7 @@ Phase 6 of the Project Slice Method package adds optional repository-level autom
 
 ## What ships
 
-The package now includes two automation surfaces:
+The package includes two automation surfaces:
 
 - repository hook files under `.github/hooks/`;
 - prompt shortcuts under `.github/prompts/`.
@@ -17,7 +17,7 @@ These are package-managed assets. They are copied into bootstrapped repositories
 
 `.github/hooks/10-psm-session-start.json` runs `scripts/psm/hook_runner.mjs session-start`.
 
-Its job is to inject lightweight Project Slice Method context at session start when a plan root exists. The injected context summarizes discovered plan roots and their current status so the agent starts from repository truth.
+It injects lightweight Project Slice Method context at session start when a plan root exists. The injected context summarizes discovered plan roots and their current status so the agent starts from repository truth.
 
 If `python3` is not on `PATH`, session-start still lists the discovered plan roots but skips the per-root status blocks and notes that validation is disabled until `python3` is installed.
 
@@ -25,17 +25,17 @@ If `python3` is not on `PATH`, session-start still lists the discovered plan roo
 
 `.github/hooks/20-psm-pre-tool-use.json` runs `scripts/psm/hook_runner.mjs pre-tool-use`.
 
-Its job is to deny common destructive shell commands before they run, including `git reset --hard`, `git checkout -- <path>`, `git checkout .`, `git restore`, `git clean` with a force flag (in any flag order), and `rm` deletions targeting PSM-managed directories (`planning/`, `.psm/`, `.github/` managed subtrees, and `scripts/psm/`).
+It denies common destructive shell commands before they run, including `git reset --hard`, `git checkout -- <path>`, `git checkout .`, `git restore`, `git clean` with a force flag in any flag order, and `rm` deletions targeting PSM-managed directories (`planning/`, `.psm/`, `.github/` managed subtrees, and `scripts/psm/`).
 
-This guard is **best-effort only**. It is not a security boundary: it recognizes common destructive command shapes, but determined, quoted, or obfuscated commands can bypass it. Treat it as a guardrail that catches easy mistakes, not as a substitute for review or agent judgment.
+This guard is best-effort only. It recognizes common destructive command shapes, but quoted or obfuscated commands can bypass it. Treat it as a guardrail that catches easy mistakes, not as a security boundary.
 
 ### Agent-stop validation
 
 `.github/hooks/30-psm-agent-stop.json` runs `scripts/psm/hook_runner.mjs agent-stop`.
 
-Its job is to rerun strict planning validation before the turn ends. If structural PSM validation genuinely fails, the hook blocks the stop and asks for repair before the workflow is treated as complete.
+It reruns strict planning validation before the turn ends. If structural PSM validation fails, the hook blocks completion until the issue is repaired.
 
-The hook **fails open**. It never blocks a turn merely because the toolchain is unavailable: if `python3` is missing, or the validator cannot be executed for any reason, the hook allows the stop. Only a reproducible, non-zero validation result blocks the turn.
+The hook fails open. If `python3` is missing, or the validator cannot be executed for any reason, the hook allows the stop. Only a reproducible, non-zero validation result blocks the turn.
 
 ## Included prompt shortcuts
 
@@ -51,11 +51,11 @@ Each prompt routes through the user-facing Project Manager contract rather than 
 
 ## Runtime note
 
-The repository tests prove the hook files, prompt files, helper script behavior, and fixture contracts.
+Repository tests cover the hook files, prompt files, helper script behavior, and fixture contracts.
 
 The validator and the session-start and agent-stop hooks require `python3` on `PATH`. When it is absent, validation-dependent automation degrades gracefully instead of failing: session-start drops status blocks and the agent-stop hook allows the turn. Install `python3` to re-enable structural validation.
 
-Actual hook firing still depends on the Copilot surface in use. Session-start prompt behavior, policy hooks, and some interactive permission flows differ between Copilot CLI and cloud agent.
+Runtime behavior still depends on the Copilot surface in use. Session-start prompt behavior, policy hooks, and some interactive permission flows differ between Copilot CLI and cloud agent.
 
 ## Disable or relax hooks
 

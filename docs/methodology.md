@@ -8,7 +8,7 @@ Describe the whole project once, then deliver it through independently specified
 
 The method avoids two common failure modes:
 
-- one giant project specification that becomes vague and hard to execute;
+- one large project specification that becomes vague and hard to execute;
 - disconnected feature notes that lose the whole-project shape.
 
 Instead, PSM separates project state into a small set of views that answer different questions.
@@ -55,7 +55,7 @@ A task is an executable unit of work inside a slice. It should state the outcome
 
 ### Inbox
 
-The Inbox captures tangents and future ideas without silently expanding the active slice.
+The inbox captures tangents and future ideas without silently expanding the active slice.
 
 ## Slice lifecycle
 
@@ -74,7 +74,7 @@ The normal loop is:
 ## Design rules
 
 - Prefer vertical slices over horizontal technical layers.
-- Keep project state in repository files, not only in chat.
+- Keep project state in repository files, not only in tool conversations.
 - Preserve stable IDs after publication.
 - Do not silently expand the active slice.
 - Keep distant roadmap work lightweight.
@@ -82,7 +82,7 @@ The normal loop is:
 
 ## Why the repository model matters
 
-PSM is designed to stay usable without AI. That means durable project state must be readable and editable as plain repository files. AI can do the bookkeeping, traceability, decomposition, and validation work, but it should not become the only place where the plan exists.
+PSM is designed to stay usable with or without AI. Durable project state should remain readable and editable as plain repository files. AI can help with bookkeeping, traceability, decomposition, and validation, but it should not be the only place where the plan exists.
 
 ## What this repository adds
 
@@ -94,4 +94,4 @@ This repository packages the method into a reusable system:
 - a starter bootstrap CLI;
 - a worked example project state.
 
-The result is a method that remains easy to read while being structured enough for reliable AI assistance.
+The method stays readable in plain files while giving AI tools enough structure to help reliably.
