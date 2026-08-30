@@ -49,7 +49,7 @@ function copyNestedImplementationHost() {
     writeFileSync(path.join(target, ".psm", "manifest.json"), JSON.stringify({
         schemaVersion: 2,
         name: "@thesereyn/psm",
-        version: "0.1.0-alpha.2",
+        version: "0.1.0-alpha.3",
         planRoots: [
             {
                 root: "planning",
@@ -61,7 +61,7 @@ function copyNestedImplementationHost() {
         ],
         packages: {
             "@thesereyn/psm": {
-                version: "0.1.0-alpha.2",
+                version: "0.1.0-alpha.3",
                 source: "npm",
                 sourceType: "self",
                 sourceRef: "current-package",
@@ -88,7 +88,7 @@ function copySameRepoSubdirectoryHost() {
     writeFileSync(path.join(target, ".psm", "manifest.json"), JSON.stringify({
         schemaVersion: 2,
         name: "@thesereyn/psm",
-        version: "0.1.0-alpha.2",
+        version: "0.1.0-alpha.3",
         planRoots: [
             {
                 root: "planning",
@@ -100,7 +100,7 @@ function copySameRepoSubdirectoryHost() {
         ],
         packages: {
             "@thesereyn/psm": {
-                version: "0.1.0-alpha.2",
+                version: "0.1.0-alpha.3",
                 source: "npm",
                 sourceType: "self",
                 sourceRef: "current-package",
