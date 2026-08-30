@@ -125,6 +125,8 @@ Validate the generated planning state from inside the target repository:
 node bin/psm.js validate ../my-repository --strict
 ```
 
+For a multi-project host, `node bin/psm.js status ../my-repository --all` prints a compact portfolio view and warns about overlapping implementation roots without writing planning state.
+
 Inspect project state directly from the validator installed into a target repository:
 
 ```bash

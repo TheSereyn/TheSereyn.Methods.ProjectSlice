@@ -156,6 +156,7 @@ The validator currently supports:
 
 - `validate`: repository or planning-tree structural checks;
 - `status`: machine-derived project status for one plan root;
+- `status --all`: compact portfolio status for every discovered project in a host, including overlap warnings for implementation roots;
 - `trace <slice-id>`: dependencies, requirement coverage, task links, and evidence for a slice;
 - `milestone <milestone-id>`: milestone composition and current slice state;
 - `coverage <slice-id>`: requirement-to-task coverage for a slice;

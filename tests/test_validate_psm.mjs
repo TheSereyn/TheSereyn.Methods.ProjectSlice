@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
-import { cpSync, mkdirSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
+import { cpSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import test from "node:test";
@@ -226,4 +226,63 @@ test("implementation_roots must use list syntax", () => {
   const result = runValidator(["validate", target, "--all"]);
   assert.notEqual(result.status, 0);
   assert.match(result.stdout + result.stderr, /implementation_roots must be a list of paths/);
+});
+
+test("status --all warns about overlapping implementation roots without failing", () => {
+  const target = createMultiProjectHost([
+    { projectName: "Product A", projectKey: "product-a", implementationRoots: ["repos/platform/shared"], slug: "product-a" },
+    { projectName: "Product B", projectKey: "product-b", implementationRoots: ["repos/platform/shared/api"], slug: "product-b" }
+  ]);
+
+  const result = runValidator(["status", target, "--all"]);
+  assert.equal(result.status, 0, result.stdout + result.stderr);
+  assert.match(result.stdout, /Portfolio status/);
+  assert.match(result.stdout, /Warning: overlapping implementation roots/);
+  assert.match(result.stdout, /product-a/);
+  assert.match(result.stdout, /product-b/);
+});
+
+test("status --all warns when one project claims the host root and another claims a descendant root", () => {
+  const target = createMultiProjectHost([
+    { projectName: "Workspace Host", projectKey: "workspace-host", implementationRoots: ["."], slug: "workspace-host" },
+    { projectName: "Product B", projectKey: "product-b", implementationRoots: ["repos/product-b"], slug: "product-b" }
+  ]);
+
+  const result = runValidator(["status", target, "--all"]);
+  assert.equal(result.status, 0, result.stdout + result.stderr);
+  assert.match(result.stdout, /Warning: overlapping implementation roots/);
+  assert.match(result.stdout, /workspace-host/);
+  assert.match(result.stdout, /product-b/);
+});
+
+test("status --all fails when a ready slice links a missing spec file", () => {
+  const target = createMultiProjectHost([
+    { projectName: "Product A", projectKey: "product-a", implementationRoots: ["repos/product-a"], slug: "product-a" },
+    { projectName: "Product B", projectKey: "product-b", implementationRoots: ["repos/product-b"], slug: "product-b" }
+  ]);
+
+  const specPath = path.join(target, "planning", "product-a", "specs", "S-002-find-saved-document", "spec.md");
+  rmSync(specPath, { force: true });
+
+  const result = runValidator(["status", target, "--all"]);
+  assert.notEqual(result.status, 0);
+  assert.match(result.stdout + result.stderr, /links missing spec file/);
+});
+
+test("status --all fails when a slice references an unknown milestone", () => {
+  const target = createMultiProjectHost([
+    { projectName: "Product A", projectKey: "product-a", implementationRoots: ["repos/product-a"], slug: "product-a" },
+    { projectName: "Product B", projectKey: "product-b", implementationRoots: ["repos/product-b"], slug: "product-b" }
+  ]);
+
+  const roadmapPath = path.join(target, "planning", "product-b", "ROADMAP.md");
+  writeFileSync(
+    roadmapPath,
+    readFileSync(roadmapPath, "utf8").replace("| S-002 | Find saved document | Find a previously saved document by title and open it | No full-text or fuzzy search | S-001 | M-001 | ready | specs/S-002-find-saved-document/spec.md |", "| S-002 | Find saved document | Find a previously saved document by title and open it | No full-text or fuzzy search | S-001 | M-999 | ready | specs/S-002-find-saved-document/spec.md |"),
+    "utf8"
+  );
+
+  const result = runValidator(["status", target, "--all"]);
+  assert.notEqual(result.status, 0);
+  assert.match(result.stdout + result.stderr, /references unknown milestone M-999/);
 });

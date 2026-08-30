@@ -118,6 +118,20 @@ class ProjectDescriptor:
         }
 
 
+class PortfolioProjectStatus:
+    def __init__(
+        self,
+        descriptor: ProjectDescriptor,
+        milestone: str,
+        active_slice: str,
+        next_action: str,
+    ) -> None:
+        self.descriptor = descriptor
+        self.milestone = milestone
+        self.active_slice = active_slice
+        self.next_action = next_action
+
+
 class Validator:
     def __init__(self, target: Path, strict: bool = False) -> None:
         self.repo_root, self.planning_root = resolve_roots(target)
@@ -560,13 +574,34 @@ def resolve_roots(target: Path) -> tuple[Path, Path]:
 def discover_plan_roots(target: Path) -> list[Path]:
     target = target.resolve()
     if is_planning_root(target):
+        nested_roots = find_nested_descendant_plan_roots(target)
+        if nested_roots:
+            raise ValueError("Mixed plan layout is not supported under planning/. Migrate the root project before keeping nested project roots beside it.")
         return [target]
 
     direct = target / "planning"
     if is_planning_root(direct):
+        nested_roots = find_nested_descendant_plan_roots(direct)
+        if nested_roots:
+            raise ValueError("Mixed plan layout is not supported under planning/. Migrate the root project before keeping nested project roots beside it.")
         return [direct]
 
     return find_nested_plan_roots(direct)
+
+
+def find_nested_descendant_plan_roots(search_root: Path) -> list[Path]:
+    if not search_root.exists() or not search_root.is_dir():
+        return []
+
+    roots: list[Path] = []
+    for child in sorted(search_root.iterdir()):
+        if not child.is_dir():
+            continue
+        if is_planning_root(child):
+            roots.append(child)
+            continue
+        roots.extend(find_nested_plan_roots(child))
+    return roots
 
 
 def find_nested_plan_roots(search_root: Path) -> list[Path]:
@@ -1101,6 +1136,121 @@ def next_slice(validator: Validator) -> RoadmapEntry | None:
     return None
 
 
+def portfolio_next_action(validator: Validator, inbox_counts: dict[str, int]) -> str:
+    active_slices = [entry for entry in validator.ordered_entries() if entry.status == "active"]
+    blocked_slices = [entry for entry in validator.ordered_entries() if entry.status == "blocked"]
+    derived_next = next_slice(validator)
+
+    if blocked_slices:
+        return "resolve blocker"
+    if active_slices:
+        return "implement"
+    if derived_next is None:
+        return "triage inbox" if inbox_counts.get("untriaged", 0) > 0 else "review"
+    if derived_next.status in {"ready", "active"}:
+        return "implement"
+    if derived_next.status == "blocked":
+        return "resolve blocker"
+    return "plan"
+
+
+def qualified_slice_ref(project_key: str, entry: RoadmapEntry | None) -> str:
+    if entry is None:
+        return "none"
+    return f"{project_key}:{entry.id}"
+
+
+def format_portfolio_table(rows: list[PortfolioProjectStatus]) -> list[str]:
+    header = ["Project", "Milestone", "Active slice", "Next action"]
+    data_rows = [[row.descriptor.project_key, row.milestone, row.active_slice, row.next_action] for row in rows]
+    widths = [len(label) for label in header]
+
+    for row in data_rows:
+        for index, cell in enumerate(row):
+            widths[index] = max(widths[index], len(cell))
+
+    rendered = ["  ".join(label.ljust(widths[index]) for index, label in enumerate(header))]
+    for row in data_rows:
+        rendered.append("  ".join(cell.ljust(widths[index]) for index, cell in enumerate(row)).rstrip())
+    return rendered
+
+
+def implementation_root_overlap(left: str, right: str) -> bool:
+    if left == "." or right == ".":
+        return True
+    if left == right:
+        return True
+    return left.startswith(f"{right}/") or right.startswith(f"{left}/")
+
+
+def portfolio_overlap_warnings(descriptors: list[ProjectDescriptor]) -> list[str]:
+    warnings: list[str] = []
+
+    for index, descriptor in enumerate(descriptors):
+        for other in descriptors[index + 1:]:
+            for left_root in descriptor.implementation_roots:
+                for right_root in other.implementation_roots:
+                    if implementation_root_overlap(left_root, right_root):
+                        warnings.append(
+                            "overlapping implementation roots: "
+                            f"{descriptor.project_key} ({left_root}) and {other.project_key} ({right_root})"
+                        )
+    return warnings
+
+
+def build_portfolio_status(roots: list[Path]) -> tuple[Path, list[PortfolioProjectStatus], list[Issue], list[str]]:
+    if not roots:
+        return Path("."), [], [], []
+
+    host_root = find_repo_root(roots[0])
+    descriptors, issues = collect_project_descriptors(roots)
+    if issues:
+        return host_root, [], issues, []
+
+    descriptor_by_root = {descriptor.plan_root.resolve(): descriptor for descriptor in descriptors}
+    rows: list[PortfolioProjectStatus] = []
+    row_issues: list[Issue] = []
+
+    for root in roots:
+        descriptor = descriptor_by_root.get(root.resolve())
+        if descriptor is None:
+            row_issues.append(Issue(f"missing project descriptor for {relative_to_repo(root, host_root)}", root))
+            continue
+
+        validator = Validator(root, strict=False)
+        if not validator.run():
+            row_issues.extend(validator.issues)
+            continue
+
+        current = current_milestones(validator)
+        milestone = current[0].id if current else "none"
+        active_entries = [entry for entry in validator.ordered_entries() if entry.status == "active"]
+        active_slice = "none" if not active_entries else format_refs([qualified_slice_ref(descriptor.project_key, entry) for entry in active_entries])
+        inbox_counts = inbox_status_counts(validator.planning_root / "INBOX.md")
+        next_action = portfolio_next_action(validator, inbox_counts)
+        rows.append(PortfolioProjectStatus(descriptor, milestone, active_slice, next_action))
+
+    warnings = portfolio_overlap_warnings(descriptors)
+    return host_root, rows, row_issues, warnings
+
+
+def print_portfolio_status_report(host_root: Path, rows: list[PortfolioProjectStatus], warnings: list[str]) -> int:
+    print("Portfolio status")
+    print("Mode: portfolio")
+    print(f"Host root: {host_root}")
+    print("")
+    for line in format_portfolio_table(rows):
+        print(line)
+
+    if warnings:
+        print("")
+        print("Warning: overlapping implementation roots")
+        for warning in warnings:
+            print(f"- {warning}")
+
+    return 0
+
+
 def roadmap_risks(validator: Validator) -> list[str]:
     risks: list[str] = []
     active_slices = [entry for entry in validator.ordered_entries() if entry.status == "active"]
@@ -1302,7 +1452,11 @@ def print_issue_lines(root: Path, issues: list[Issue]) -> None:
 
 def run_validate(args: argparse.Namespace) -> int:
     if getattr(args, "all_roots", False):
-        roots = discover_plan_roots(Path(args.path))
+        try:
+            roots = discover_plan_roots(Path(args.path))
+        except ValueError as error:
+            print(error, file=sys.stderr)
+            return 1
         if not roots:
             print(f"No plan roots found under {Path(args.path).resolve()}", file=sys.stderr)
             return 1
@@ -1329,6 +1483,24 @@ def run_validate(args: argparse.Namespace) -> int:
 
 
 def run_status(args: argparse.Namespace) -> int:
+    if getattr(args, "all_roots", False):
+        try:
+            roots = discover_plan_roots(Path(args.path))
+        except ValueError as error:
+            print(error, file=sys.stderr)
+            return 1
+        if not roots:
+            print(f"No plan roots found under {Path(args.path).resolve()}", file=sys.stderr)
+            return 1
+
+        host_root, rows, issues, warnings = build_portfolio_status(roots)
+        if issues:
+            print(f"PSM validation failed for {host_root}")
+            print_issue_lines(host_root, issues)
+            return 1
+
+        return print_portfolio_status_report(host_root, rows, warnings)
+
     validator = Validator(Path(args.path), strict=False)
     if not validator.run():
         return print_report(validator)
@@ -1395,7 +1567,11 @@ def run_next_id(args: argparse.Namespace) -> int:
 
 
 def run_projects(args: argparse.Namespace) -> int:
-    roots = discover_plan_roots(Path(args.path))
+    try:
+        roots = discover_plan_roots(Path(args.path))
+    except ValueError as error:
+        print(error, file=sys.stderr)
+        return 1
     if not roots:
         print(f"No plan roots found under {Path(args.path).resolve()}", file=sys.stderr)
         return 1
@@ -1444,6 +1620,7 @@ def build_parser() -> argparse.ArgumentParser:
 
     status_parser = subparsers.add_parser("status", help="Print machine-derived project status.")
     status_parser.add_argument("path", nargs="?", default=".")
+    status_parser.add_argument("--all", dest="all_roots", action="store_true", help="Discover and report every project in a compact portfolio view.")
     status_parser.set_defaults(handler=run_status)
 
     trace_parser = subparsers.add_parser("trace", help="Show dependencies, requirements, and evidence for one slice.")

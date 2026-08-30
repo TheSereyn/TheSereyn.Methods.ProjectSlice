@@ -16,6 +16,7 @@ This repository is a partial implementation of the Project Slice Method technica
 - Slice 2 multi-project lifecycle transition infrastructure, including `add-project`, explicit `enable` and `disable` flows for `multi-project`, manifest-owned capability state, automatic migration from `planning/` to `planning/<project-key>/`, and capability-aware lifecycle refresh when a package source defines optional multi-project assets.
 - Slice 3 contract-level role boundaries, including a packaged Project Coordinator contract, a project-scoped Project Manager contract for resolved multi-project work, and specialist selected-scope rules that require inherited `plan_root` and `implementation_roots` context.
 - Slice 4 packaged multi-project entry assets, including the `psm-project-coordinator` capability asset, the `work-on-project` prompt, and the `psm-select-project-context` skill, plus lifecycle and contract tests that install and verify them.
+- Slice 5 compact portfolio status through `status --all`, including per-project host summaries, qualified cross-project references in multi-project output, overlap warnings for implementation roots, and no-write portfolio boundary tests.
 - Repo-local agents, skills, and instructions that express the intended roles and workflows.
 - Safe handling for existing `.github/copilot-instructions.md` files.
 - Support for more than one plan root by keeping plans under `planning/<plan-slug>/`.
@@ -96,6 +97,18 @@ The current state is:
 - contract and fixture tests cover explicit, ambiguous, portfolio, and qualified-ID entry behavior.
 
 Live VS Code verification of prompt-to-coordinator activation, structured-question UI, visible coordinator-to-manager handoff, and retained PM context is still outstanding.
+
+## Slice 5 status
+
+Slice 5 is now partially implemented at the validator, CLI, and contract level.
+
+The current state is:
+
+- `status --all` now produces a compact portfolio view for discovered projects in a host;
+- overlapping implementation roots are reported as warnings rather than validation failures;
+- contract and boundary tests prove that portfolio status remains read-only and that ambiguous cross-project idea routing still stops before project-local writes.
+
+Semantic conflict analysis beyond declared overlapping roots is still deferred.
 
 ## Phase 6 status
 

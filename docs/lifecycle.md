@@ -119,6 +119,8 @@ It reports:
 
 This is scoped to package-managed files. Project-owned plan artifacts and the main instructions file remain user-owned and are not treated as package drift by default.
 
+Portfolio status is not a lifecycle write path. Use `node bin/psm.js status <host> --all` to inspect a multi-project host with a compact read-only view and overlap warnings.
+
 ## Install-state model
 
 The `.psm/` directory records package lifecycle metadata per installed package.

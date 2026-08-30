@@ -142,6 +142,42 @@ test("portfolio fallback stays user-visible and leaves project-local state untou
     assert.equal(readFileSync(path.join(target, "planning", "product-b", "ROADMAP.md"), "utf8"), beforeProjectTwoRoadmap);
 });
 
+test("status --all reports compact portfolio status per project without planning writes", () => {
+    const target = createMultiProjectHost();
+    const projectOneRoadmapPath = path.join(target, "planning", "product-a", "ROADMAP.md");
+    const projectTwoRoadmapPath = path.join(target, "planning", "product-b", "ROADMAP.md");
+    const projectOneInboxPath = path.join(target, "planning", "product-a", "INBOX.md");
+    const projectTwoInboxPath = path.join(target, "planning", "product-b", "INBOX.md");
+    const beforeProjectOneRoadmap = readFileSync(projectOneRoadmapPath, "utf8");
+    const beforeProjectTwoRoadmap = readFileSync(projectTwoRoadmapPath, "utf8");
+    const beforeProjectOneInbox = readFileSync(projectOneInboxPath, "utf8");
+    const beforeProjectTwoInbox = readFileSync(projectTwoInboxPath, "utf8");
+
+    const result = runCli(["status", target, "--all"]);
+    assert.equal(result.status, 0, result.stderr || result.stdout);
+    assert.match(result.stdout, /Portfolio status/);
+    assert.match(result.stdout, /Project\s+Milestone\s+Active slice\s+Next action/);
+    assert.match(result.stdout, /product-a\s+M-001\s+none\s+implement/);
+    assert.match(result.stdout, /product-b\s+M-001\s+none\s+implement/);
+
+    assert.equal(readFileSync(projectOneRoadmapPath, "utf8"), beforeProjectOneRoadmap);
+    assert.equal(readFileSync(projectTwoRoadmapPath, "utf8"), beforeProjectTwoRoadmap);
+    assert.equal(readFileSync(projectOneInboxPath, "utf8"), beforeProjectOneInbox);
+    assert.equal(readFileSync(projectTwoInboxPath, "utf8"), beforeProjectTwoInbox);
+});
+
+test("status --all rejects mixed root and nested plan layouts instead of hiding nested projects", () => {
+    const target = createMultiProjectHost();
+    cpSync(path.join(target, "planning", "product-a", "PROJECT.md"), path.join(target, "planning", "PROJECT.md"));
+    cpSync(path.join(target, "planning", "product-a", "ROADMAP.md"), path.join(target, "planning", "ROADMAP.md"));
+    cpSync(path.join(target, "planning", "product-a", "INBOX.md"), path.join(target, "planning", "INBOX.md"));
+    cpSync(path.join(target, "planning", "product-a", "specs"), path.join(target, "planning", "specs"), { recursive: true });
+
+    const result = runCli(["status", target, "--all"]);
+    assert.notEqual(result.status, 0);
+    assert.match(result.stdout + result.stderr, /Mixed plan layout is not supported/);
+});
+
 test("qualified cross-project IDs resolve duplicate local slice IDs to one project descriptor", () => {
     const target = createMultiProjectHost();
     const projectsResult = runCli(["projects", target, "--json"]);

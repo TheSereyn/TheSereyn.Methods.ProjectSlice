@@ -618,6 +618,17 @@ async function statusProject(io, args) {
 
     for (const target of targets) {
         const targetRoot = path.resolve(target);
+
+        if (flags.all === true) {
+            const repoRoot = await findOwningRepoRoot(targetRoot);
+            const result = runValidatorCommand(repoRoot, "status", [targetRoot, "--all"]);
+            relayCommandOutput(io, result);
+            if (result.status !== 0) {
+                failures += 1;
+            }
+            continue;
+        }
+
         const planRoots = await resolveCommandPlanRoots(targetRoot, flags, { allowMultiple: flags.all === true });
 
         if (!planRoots.ok) {
