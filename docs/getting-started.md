@@ -80,7 +80,21 @@ Examples:
 
 - `node bin/psm.js init ../repo --planning-root planning`
 - `node bin/psm.js init ../repo --planning-root planning/project-one`
-- `node bin/psm.js init ../repo --planning-root planning/project-two`
+- `node bin/psm.js add-project ../repo --planning-root planning/project-two --name "Project Two"`
+
+If the existing repository started with a single root at `planning/`, `add-project` now migrates that root into `planning/<project-key>/` before it enables the multi-project lifecycle state. That keeps project roots disjoint instead of leaving one plan root inside another.
+
+If you already have more than one plan root but no recorded multi-project capability state, enable it explicitly:
+
+```bash
+node bin/psm.js enable multi-project ../repo
+```
+
+If you later archive back down to one plan root, disable the capability state explicitly. This does not prune capability-managed files automatically:
+
+```bash
+node bin/psm.js disable multi-project ../repo
+```
 
 If you want to initialize more than one repository from the same workspace command, pass more than one target path:
 

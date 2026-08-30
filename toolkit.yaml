@@ -27,6 +27,13 @@ repoManaged:
   - source: templates/project/.github/workflows/psm-validate.yml
     destination: .github/workflows/psm-validate.yml
 
+capabilities:
+  multiProject:
+    activation: explicit
+    suggestWhen:
+      planRootsAtLeast: 2
+    repoManaged: []
+
 planOwned:
   - source: templates/project/planning
     destination: "{{PLANNING_ROOT}}"

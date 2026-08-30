@@ -7,7 +7,10 @@ Project Slice Method ships a basic package lifecycle for managed assets.
 The current lifecycle surface is small:
 
 - `inspect [source]`
+- `add-project [target] --planning-root planning/<project>`
 - `add <source> [target]`
+- `enable multi-project [target]`
+- `disable multi-project [target]`
 - `sync [target]`
 - `update [target]`
 - `diff [target]`
@@ -50,6 +53,26 @@ This keeps `add` distinct from `init`:
 
 - `init` is the primary bootstrap command for a first-time PSM repository;
 - `add` is the lifecycle command for adding an installable package source to an existing repository.
+
+### `add-project`
+
+`add-project [target] --planning-root planning/<project>` creates another project-owned plan root in an existing PSM host.
+
+When a repository started as a single-project installation rooted at `planning/`, `add-project` migrates that original plan into `planning/<project-key>/` before adding the second project. That keeps project roots disjoint and lets the validator, status commands, and lifecycle state treat each project independently.
+
+Crossing from one project root to two also enables the recorded `multiProject` capability in `.psm/manifest.json`. If the current package source defines capability-managed files for that capability, `add-project` installs them during the same transition.
+
+### `enable multi-project`
+
+`enable multi-project [target]` upgrades an existing multi-root host that does not yet have recorded multi-project capability state.
+
+It records the capability in `.psm/manifest.json`, installs any capability-managed files supplied by the current package source, and performs the same `planning/` to `planning/<project-key>/` migration when a legacy root layout still needs it.
+
+### `disable multi-project`
+
+`disable multi-project [target]` turns off the recorded lifecycle capability once one active plan root remains on disk.
+
+It preserves project-owned artifacts and does not prune capability-managed files automatically. That cleanup remains an explicit future operation.
 
 ### `sync`
 
@@ -103,6 +126,8 @@ The important fields are:
 - instructions merge state.
 
 This keeps lifecycle operations deterministic without moving the project plan itself into `.psm/`.
+
+`manifest.json` is authoritative for plan roots, capability state, and project-facing lifecycle metadata. `lock.json` mirrors resolved package source and version information for lifecycle operations, but it does not outrank the manifest when project and capability state disagree.
 
 ## Safety model
 

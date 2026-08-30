@@ -12,6 +12,8 @@ This repository is a partial implementation of the Project Slice Method technica
 - Phase 5 Project Manager orchestration contract with explicit routing rules, approval gates, status response format, tangent-handling policy, and fixture-backed prompt scenarios.
 - Phase 6 repository automation with hook files, prompt shortcuts, a shared hook helper, and fixture-backed automation tests.
 - Local-source lifecycle commands for `inspect`, `add`, `sync`, `update`, and `diff`, backed by package-aware install-state tracking, baseline-hash local-edit preservation, and `--force`, `--dry-run`, and `--prune` controls.
+- Slice 1 project descriptor discovery through `psm projects`, including `project_key`, `implementation_roots`, recursive multi-root discovery, and cross-root validation.
+- Slice 2 multi-project lifecycle transition infrastructure, including `add-project`, explicit `enable` and `disable` flows for `multi-project`, manifest-owned capability state, automatic migration from `planning/` to `planning/<project-key>/`, and capability-aware lifecycle refresh when a package source defines optional multi-project assets.
 - Repo-local agents, skills, and instructions that express the intended roles and workflows.
 - Safe handling for existing `.github/copilot-instructions.md` files.
 - Support for more than one plan root by keeping plans under `planning/<plan-slug>/`.
@@ -24,12 +26,15 @@ This repository is a partial implementation of the Project Slice Method technica
 
 - remote GitHub-source package installation;
 - MCP integrations or external projections such as GitHub Issues synchronization.
+- interactive coordinator, handoff, and project-context runtime surfaces from later multi-project slices.
 
 ## Plan and metadata locations
 
 Project plans live under `planning/`. Installer metadata and lock state live under `.psm/`.
 
 That keeps the project state visible in the repository while leaving package-owned state in the package-owned directory.
+
+For lifecycle decisions, `.psm/manifest.json` is authoritative for plan-root and capability state. `.psm/lock.json` mirrors resolved package source and version data for refresh operations.
 
 ## Multi-plan layout
 

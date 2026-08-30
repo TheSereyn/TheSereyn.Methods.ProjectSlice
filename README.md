@@ -88,16 +88,23 @@ Bootstrap another repository locally:
 node bin/psm.js init ../my-repository --name "My Project"
 ```
 
-Bootstrap a second plan in the same repository:
+Add a second project to an existing PSM repository:
 
 ```bash
-node bin/psm.js init ../my-repository --planning-root planning/project-two --instructions-mode preserve
+node bin/psm.js add-project ../my-repository --planning-root planning/project-two --name "Project Two"
 ```
 
 Add a local package source to an existing repository:
 
 ```bash
 node bin/psm.js add ../my-package ../my-repository
+```
+
+Enable or disable the multi-project lifecycle state explicitly:
+
+```bash
+node bin/psm.js enable multi-project ../my-repository
+node bin/psm.js disable multi-project ../my-repository
 ```
 
 Check managed-file drift and reapply package-managed assets:
@@ -158,6 +165,8 @@ The current state is:
 
 - Phase 1: implemented.
 - Phase 2: implemented.
+- Slice 1: implemented.
+- Slice 2 lifecycle transition infrastructure: implemented.
 - Phase 3: complete for the core workflow skills, with consistent skill contracts, an automated skill audit, and deterministic validator support for `status`, `trace`, `milestone`, `coverage`, and `next-id`.
 - Phase 4: complete at the repository-contract level, with explicit specialist-agent write scopes, common skills, escalation rules, completion conditions, and independent fixture-backed boundary tests.
 - Phase 5: complete at the repository-contract level, with an explicit Project Manager routing contract, approval gates, status response format, tangent-handling policy, and fixture-backed user-prompt scenarios.
