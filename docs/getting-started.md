@@ -98,7 +98,7 @@ When the `multiProject` capability is enabled, the installed repository receives
 - the `/work-on-project` prompt;
 - the `psm-select-project-context` skill used to resolve one project before PM work begins.
 
-On surfaces that do not support structured questions or visible handoffs, the coordinator falls back to ordinary chat questions and a user-visible portfolio response rather than silently choosing a project.
+On surfaces that do not provide an appropriate ask-questions tool or visible handoffs, the coordinator ends the turn with the smallest necessary list of questions for the user to answer next and uses a user-visible portfolio response rather than silently choosing a project.
 
 If you later archive back down to one plan root, disable the capability state explicitly. This does not prune capability-managed files automatically:
 

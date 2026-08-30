@@ -10,7 +10,7 @@ description: "Resolve one Project Slice Method project context in a multi-projec
 - host-level project descriptors from `psm projects`;
 - the current request text, attached paths, and active workflow clues;
 - shallow per-project status when that helps resolve ambiguity;
-- `vscode/askQuestions` when available.
+- the appropriate ask-questions tool for the current surface, such as `vscode/askQuestions` in VS Code, when available.
 
 ## Outputs
 
@@ -26,7 +26,7 @@ description: "Resolve one Project Slice Method project context in a multi-projec
    - A project context already established earlier in the current workflow.
    - An unambiguous project-local file or directory attached to the request.
    - The only discovered project, when exactly one exists.
-   - Use `vscode/askQuestions` when available for the smallest unresolved choice, then fall back to ordinary chat questions.
+   - Use the appropriate ask-questions tool for the current surface when available for the smallest unresolved choice; if no such tool is available, end the turn with the smallest necessary list of questions for the user to answer on the next turn.
 3. Infer workflow and slice from the request and the project status before asking the user to repeat known information.
 4. Use qualified cross-project IDs such as `product-a:S-002` and `product-b:S-002` when local IDs collide.
 5. Create the resolved context envelope.
@@ -38,4 +38,4 @@ description: "Resolve one Project Slice Method project context in a multi-projec
 
 - explicit project-local work remains ambiguous after discovery and the smallest truthful question;
 - contradictory descriptors prevent a truthful resolved context envelope;
-- the current surface ignores structured questions or handoffs and no user-visible fallback can preserve correct scope.
+- the current surface ignores structured questions or handoffs and ending the turn with the smallest necessary list of questions still cannot preserve correct scope.

@@ -33,8 +33,8 @@
     "promptMustMention": [
         "Run `psm-select-project-context`.",
         "Discover projects before asking questions.",
-        "Use `vscode/askQuestions`",
-        "Fall back to ordinary chat questions",
+        "Use the appropriate ask-questions tool",
+        "If no ask-questions tool is available, end the turn with the smallest necessary list of questions",
         "visible handoff to `psm-project-manager`",
         "Do not use a hidden subagent"
     ],
@@ -47,8 +47,8 @@
     "skillMustMention": [
         "An explicit project key or plan-root path in the request",
         "The only discovered project, when exactly one exists",
-        "Use `vscode/askQuestions` when available",
-        "fall back to ordinary chat questions",
+        "appropriate ask-questions tool for the current surface",
+        "end the turn with the smallest necessary list of questions for the user to answer on the next turn",
         "visible handoff to `psm-project-manager`",
         "resolved context envelope"
     ]
