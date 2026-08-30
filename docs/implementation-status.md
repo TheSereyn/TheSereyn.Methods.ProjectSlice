@@ -17,6 +17,7 @@ This repository is a partial implementation of the Project Slice Method technica
 - Slice 3 contract-level role boundaries, including a packaged Project Coordinator contract, a project-scoped Project Manager contract for resolved multi-project work, and specialist selected-scope rules that require inherited `plan_root` and `implementation_roots` context.
 - Slice 4 packaged multi-project entry assets, including the `psm-project-coordinator` capability asset, the `work-on-project` prompt, and the `psm-select-project-context` skill, plus lifecycle and contract tests that install and verify them.
 - Slice 5 compact portfolio status through `status --all`, including per-project host summaries, qualified cross-project references in multi-project output, overlap warnings for implementation roots, and no-write portfolio boundary tests.
+- Slice 6 portability and runtime hardening for repository-managed behavior, including same-repository subdirectory and nested implementation repository host discovery, explicit unavailable-tool and ignored-handoff diagnostics, and a documented supported-surface matrix.
 - Repo-local agents, skills, and instructions that express the intended roles and workflows.
 - Safe handling for existing `.github/copilot-instructions.md` files.
 - Support for more than one plan root by keeping plans under `planning/<plan-slug>/`.
@@ -109,6 +110,18 @@ The current state is:
 - contract and boundary tests prove that portfolio status remains read-only and that ambiguous cross-project idea routing still stops before project-local writes.
 
 Semantic conflict analysis beyond declared overlapping roots is still deferred.
+
+## Slice 6 status
+
+Slice 6 is now partially implemented at the repository, package, and documentation level.
+
+The current state is:
+
+- session-start and CLI discovery now prefer the outer planning host when a nested implementation repository sits under a bootstrapped `.psm/manifest.json` host;
+- packaged coordinator assets now document explicit diagnostics for unavailable ask-questions tools and ignored visible handoffs;
+- the repository ships a runtime-compatibility matrix covering supported topologies and the current user-visible fallbacks.
+
+The remaining gap is live runtime verification inside the supported Copilot surfaces. Prompt-to-coordinator activation, `vscode/askQuestions`, visible coordinator-to-manager handoff, and retained PM context are still documented as outstanding manual checks.
 
 ## Phase 6 status
 

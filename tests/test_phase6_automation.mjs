@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
-import { cpSync, existsSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
+import { cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import test from "node:test";
@@ -43,6 +43,82 @@ function copyBaseFixture() {
     return target;
 }
 
+function copyNestedImplementationHost() {
+    const target = copyBaseFixture();
+    mkdirSync(path.join(target, ".psm"), { recursive: true });
+    writeFileSync(path.join(target, ".psm", "manifest.json"), JSON.stringify({
+        schemaVersion: 2,
+        name: "@thesereyn/psm",
+        version: "0.1.0-alpha.2",
+        planRoots: [
+            {
+                root: "planning",
+                projectName: "Local-First Documents",
+                templatedFiles: [],
+                initializedAt: null,
+                updatedAt: null
+            }
+        ],
+        packages: {
+            "@thesereyn/psm": {
+                version: "0.1.0-alpha.2",
+                source: "npm",
+                sourceType: "self",
+                sourceRef: "current-package",
+                manifest: "toolkit.yaml",
+                repoManagedFiles: [],
+                managedFileHashes: {},
+                instructions: null,
+                planRoots: ["planning"],
+                installedAt: null,
+                updatedAt: null
+            }
+        }
+    }, null, 2) + "\n", "utf8");
+    mkdirSync(path.join(target, "repos", "product-a", ".git"), { recursive: true });
+    return {
+        target,
+        nestedRepo: path.join(target, "repos", "product-a")
+    };
+}
+
+function copySameRepoSubdirectoryHost() {
+    const target = copyBaseFixture();
+    mkdirSync(path.join(target, ".psm"), { recursive: true });
+    writeFileSync(path.join(target, ".psm", "manifest.json"), JSON.stringify({
+        schemaVersion: 2,
+        name: "@thesereyn/psm",
+        version: "0.1.0-alpha.2",
+        planRoots: [
+            {
+                root: "planning",
+                projectName: "Local-First Documents",
+                templatedFiles: [],
+                initializedAt: null,
+                updatedAt: null
+            }
+        ],
+        packages: {
+            "@thesereyn/psm": {
+                version: "0.1.0-alpha.2",
+                source: "npm",
+                sourceType: "self",
+                sourceRef: "current-package",
+                manifest: "toolkit.yaml",
+                repoManagedFiles: [],
+                managedFileHashes: {},
+                instructions: null,
+                planRoots: ["planning"],
+                installedAt: null,
+                updatedAt: null
+            }
+        }
+    }, null, 2) + "\n", "utf8");
+    const subdirectory = path.join(target, "apps", "site", "docs");
+    mkdirSync(subdirectory, { recursive: true });
+    return { target, subdirectory };
+}
+
 function runHook(mode, payload, cwd = repoRoot) {
     return spawnSync("node", [hookRunner, mode], {
         cwd,
@@ -78,10 +154,47 @@ test("phase 6 prompt shortcuts exist with the expected frontmatter and guidance"
     }
 });
 
+test("phase 6 runtime and portability docs describe supported topologies and fallbacks", () => {
+    for (const document of contract.docs ?? []) {
+        const content = readText(document.file);
+        for (const snippet of document.mustMention) {
+            assert.match(content, new RegExp(snippet.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")), `Missing '${snippet}' in ${document.file}`);
+        }
+    }
+});
+
 test("session-start hook injects Project Slice Method context for a bootstrapped plan root", () => {
     const target = copyBaseFixture();
     const result = runHook("session-start", {
         cwd: target,
+        source: "new"
+    });
+
+    assert.equal(result.status, 0, result.stdout + result.stderr);
+    const output = JSON.parse(result.stdout);
+    assert.match(output.additionalContext, /This repository uses Project Slice Method\./);
+    assert.match(output.additionalContext, /Discovered plan roots:/);
+    assert.match(output.additionalContext, /Next slice: S-002 — Find saved document/);
+});
+
+test("session-start hook discovers the outer planning host from a nested implementation repo", () => {
+    const { nestedRepo } = copyNestedImplementationHost();
+    const result = runHook("session-start", {
+        cwd: nestedRepo,
+        source: "new"
+    });
+
+    assert.equal(result.status, 0, result.stdout + result.stderr);
+    const output = JSON.parse(result.stdout);
+    assert.match(output.additionalContext, /This repository uses Project Slice Method\./);
+    assert.match(output.additionalContext, /Discovered plan roots:/);
+    assert.match(output.additionalContext, /Next slice: S-002 — Find saved document/);
+});
+
+test("session-start hook discovers the planning host from a same-repository subdirectory", () => {
+    const { subdirectory } = copySameRepoSubdirectoryHost();
+    const result = runHook("session-start", {
+        cwd: subdirectory,
         source: "new"
     });
 

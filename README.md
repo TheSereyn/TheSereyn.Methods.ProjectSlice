@@ -146,6 +146,7 @@ npm test
 - [docs/methodology.md](docs/methodology.md): the operating model and core concepts.
 - [docs/getting-started.md](docs/getting-started.md): adoption flow, prerequisites, and first steps.
 - [docs/automation.md](docs/automation.md): hook behavior, prompt shortcuts, and automation limits.
+- [docs/runtime-compatibility.md](docs/runtime-compatibility.md): supported topologies, Copilot-surface matrix, and current handoff fallback behavior.
 - [docs/artifact-model.md](docs/artifact-model.md): managed versus project-owned files and install state.
 - [docs/implementation-status.md](docs/implementation-status.md): which parts of the technical spec are implemented today.
 - [docs/lifecycle.md](docs/lifecycle.md): local-source package lifecycle behavior, safety rules, and current limitations.

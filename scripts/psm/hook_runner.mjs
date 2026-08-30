@@ -42,15 +42,20 @@ function getCwd(payload) {
 
 function findRepoRoot(startPath) {
     let current = path.resolve(startPath);
+    let nearestGitRoot = null;
 
     while (true) {
-        if (existsSync(path.join(current, ".git")) || existsSync(path.join(current, ".psm", "manifest.json"))) {
+        if (existsSync(path.join(current, ".psm", "manifest.json"))) {
             return current;
+        }
+
+        if (nearestGitRoot === null && existsSync(path.join(current, ".git"))) {
+            nearestGitRoot = current;
         }
 
         const parent = path.dirname(current);
         if (parent === current) {
-            return path.resolve(startPath);
+            return nearestGitRoot ?? path.resolve(startPath);
         }
 
         current = parent;

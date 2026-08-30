@@ -79,6 +79,92 @@ function createMultiProjectHost(projects = [
     return target;
 }
 
+function createNestedImplementationHost() {
+    const sandboxRoot = mkdtempSync(path.join(tmpdir(), "psm-nested-host-"));
+    const target = path.join(sandboxRoot, "workspace");
+    mkdirSync(path.join(target, ".git"), { recursive: true });
+    cpSync(path.join(fixtureRoot, "planning"), path.join(target, "planning"), { recursive: true });
+    writeProjectFile(path.join(target, "planning"), "Local-First Documents", "local-first-documents", ["repos/product-a"]);
+    mkdirSync(path.join(target, ".psm"), { recursive: true });
+    writeFileSync(path.join(target, ".psm", "manifest.json"), JSON.stringify({
+        schemaVersion: 2,
+        name: "@thesereyn/psm",
+        version: "0.1.0-alpha.2",
+        planRoots: [
+            {
+                root: "planning",
+                projectName: "Local-First Documents",
+                templatedFiles: [],
+                initializedAt: null,
+                updatedAt: null
+            }
+        ],
+        packages: {
+            "@thesereyn/psm": {
+                version: "0.1.0-alpha.2",
+                source: "npm",
+                sourceType: "self",
+                sourceRef: "current-package",
+                manifest: "toolkit.yaml",
+                repoManagedFiles: [],
+                managedFileHashes: {},
+                instructions: null,
+                planRoots: ["planning"],
+                installedAt: null,
+                updatedAt: null
+            }
+        }
+    }, null, 2) + "\n", "utf8");
+    mkdirSync(path.join(target, "repos", "product-a", ".git"), { recursive: true });
+    return {
+        target,
+        nestedRepo: path.join(target, "repos", "product-a")
+    };
+}
+
+function createSameRepoSubdirectoryHost() {
+    const sandboxRoot = mkdtempSync(path.join(tmpdir(), "psm-subdir-host-"));
+    const target = path.join(sandboxRoot, "workspace");
+    mkdirSync(path.join(target, ".git"), { recursive: true });
+    cpSync(path.join(fixtureRoot, "planning"), path.join(target, "planning"), { recursive: true });
+    writeProjectFile(path.join(target, "planning"), "Local-First Documents", "local-first-documents", ["src"]);
+    mkdirSync(path.join(target, ".psm"), { recursive: true });
+    writeFileSync(path.join(target, ".psm", "manifest.json"), JSON.stringify({
+        schemaVersion: 2,
+        name: "@thesereyn/psm",
+        version: "0.1.0-alpha.2",
+        planRoots: [
+            {
+                root: "planning",
+                projectName: "Local-First Documents",
+                templatedFiles: [],
+                initializedAt: null,
+                updatedAt: null
+            }
+        ],
+        packages: {
+            "@thesereyn/psm": {
+                version: "0.1.0-alpha.2",
+                source: "npm",
+                sourceType: "self",
+                sourceRef: "current-package",
+                manifest: "toolkit.yaml",
+                repoManagedFiles: [],
+                managedFileHashes: {},
+                instructions: null,
+                planRoots: ["planning"],
+                installedAt: null,
+                updatedAt: null
+            }
+        }
+    }, null, 2) + "\n", "utf8");
+    mkdirSync(path.join(target, "apps", "site", "docs"), { recursive: true });
+    return {
+        target,
+        subdirectory: path.join(target, "apps", "site", "docs")
+    };
+}
+
 test("inspect lists the bundle surface", () => {
     const result = runCli(["inspect"]);
     assert.equal(result.status, 0, result.stderr || result.stdout);
@@ -253,4 +339,30 @@ test("projects discovers nested plan roots under planning", () => {
     const output = JSON.parse(result.stdout);
     assert.deepEqual(output.projects.map((project) => project.planRoot), ["planning/identity/service", "planning/site/content"]);
     assert.deepEqual(output.projects.map((project) => project.projectKey), ["identity-service", "site-content"]);
+});
+
+test("projects discovers the planning host when invoked from a nested implementation repo", () => {
+    const { nestedRepo } = createNestedImplementationHost();
+
+    const result = runCli(["projects", nestedRepo, "--json"]);
+    assert.equal(result.status, 0, result.stderr || result.stdout);
+
+    const output = JSON.parse(result.stdout);
+    assert.equal(output.projects.length, 1);
+    assert.equal(output.projects[0].projectKey, "local-first-documents");
+    assert.equal(output.projects[0].planRoot, "planning");
+    assert.deepEqual(output.projects[0].implementationRoots, ["repos/product-a"]);
+});
+
+test("projects discovers the planning host when invoked from a same-repository subdirectory", () => {
+    const { subdirectory } = createSameRepoSubdirectoryHost();
+
+    const result = runCli(["projects", subdirectory, "--json"]);
+    assert.equal(result.status, 0, result.stderr || result.stdout);
+
+    const output = JSON.parse(result.stdout);
+    assert.equal(output.projects.length, 1);
+    assert.equal(output.projects[0].projectKey, "local-first-documents");
+    assert.equal(output.projects[0].planRoot, "planning");
+    assert.deepEqual(output.projects[0].implementationRoots, ["src"]);
 });

@@ -1900,15 +1900,20 @@ async function isPlanningRoot(targetPath) {
 
 async function findOwningRepoRoot(startPath) {
     let current = path.resolve(startPath);
+    let nearestGitRoot = null;
 
     while (true) {
-        if (await exists(path.join(current, ".git")) || await exists(path.join(current, ".psm", "manifest.json"))) {
+        if (await exists(path.join(current, ".psm", "manifest.json"))) {
             return current;
+        }
+
+        if (nearestGitRoot === null && await exists(path.join(current, ".git"))) {
+            nearestGitRoot = current;
         }
 
         const parent = path.dirname(current);
         if (parent === current) {
-            return path.resolve(startPath);
+            return nearestGitRoot ?? path.resolve(startPath);
         }
 
         current = parent;

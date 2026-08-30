@@ -80,5 +80,28 @@
                 "candidate for roadmap shaping"
             ]
         }
+    ],
+    "docs": [
+        {
+            "file": "docs/automation.md",
+            "mustMention": [
+                "same-repository subdirectories",
+                "nested implementation repositories",
+                "runtime-compatibility.md",
+                "ignored handoffs"
+            ]
+        },
+        {
+            "file": "docs/runtime-compatibility.md",
+            "mustMention": [
+                "VS Code local Copilot chat",
+                "Copilot CLI",
+                "Copilot cloud agent on GitHub.com",
+                "same-repository subdirectory",
+                "nested implementation repository",
+                "smallest necessary list of questions",
+                "generated context prompt for `psm-project-manager`"
+            ]
+        }
     ]
 }

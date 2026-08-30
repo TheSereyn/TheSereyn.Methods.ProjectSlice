@@ -34,8 +34,9 @@
         "Run `psm-select-project-context`.",
         "Discover projects before asking questions.",
         "Use the appropriate ask-questions tool",
-        "If no ask-questions tool is available, end the turn with the smallest necessary list of questions",
+        "If no ask-questions tool is available, explicitly say so and end the turn with the smallest necessary list of questions",
         "visible handoff to `psm-project-manager`",
+        "If the current surface ignores or does not support the visible handoff, explicitly say so and provide a generated context prompt for `psm-project-manager`",
         "Do not use a hidden subagent"
     ],
     "skillSections": [
@@ -48,7 +49,8 @@
         "An explicit project key or plan-root path in the request",
         "The only discovered project, when exactly one exists",
         "appropriate ask-questions tool for the current surface",
-        "end the turn with the smallest necessary list of questions for the user to answer on the next turn",
+        "explicitly say so and end the turn with the smallest necessary list of questions for the user to answer on the next turn",
+        "If the current surface ignores or cannot perform the visible handoff, explicitly say so",
         "visible handoff to `psm-project-manager`",
         "resolved context envelope"
     ]

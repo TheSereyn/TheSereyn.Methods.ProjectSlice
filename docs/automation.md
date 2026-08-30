@@ -57,6 +57,16 @@ The validator and the session-start and agent-stop hooks require `python3` on `P
 
 Runtime behavior still depends on the Copilot surface in use. Session-start prompt behavior, policy hooks, and some interactive permission flows differ between Copilot CLI and cloud agent.
 
+Repository tests now cover host discovery from:
+
+- the planning host root;
+- same-repository subdirectories;
+- nested implementation repositories under an outer planning host.
+
+If a current surface does not expose an appropriate ask-questions tool, or if it ignores visible handoffs or other ignored handoffs, the coordinator should say so explicitly and fall back to the smallest necessary list of questions or a generated context prompt for `psm-project-manager`.
+
+See [runtime-compatibility.md](runtime-compatibility.md) for the supported topology matrix and current Copilot-surface guidance.
+
 ## Disable or relax hooks
 
 If a consumer needs to pause automation temporarily, the main options are:

@@ -100,6 +100,10 @@ When the `multiProject` capability is enabled, the installed repository receives
 
 On surfaces that do not provide an appropriate ask-questions tool or visible handoffs, the coordinator ends the turn with the smallest necessary list of questions for the user to answer next and uses a user-visible portfolio response rather than silently choosing a project.
 
+If you open a same-repository subdirectory or a nested implementation repository under a bootstrapped planning host, the CLI and session-start hook now prefer the outer `.psm/manifest.json` host when it is present.
+
+See [runtime-compatibility.md](runtime-compatibility.md) for the current topology support and Copilot-surface matrix.
+
 If you later archive back down to one plan root, disable the capability state explicitly. This does not prune capability-managed files automatically:
 
 ```bash

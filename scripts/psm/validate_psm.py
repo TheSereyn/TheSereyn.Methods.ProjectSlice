@@ -586,7 +586,15 @@ def discover_plan_roots(target: Path) -> list[Path]:
             raise ValueError("Mixed plan layout is not supported under planning/. Migrate the root project before keeping nested project roots beside it.")
         return [direct]
 
-    return find_nested_plan_roots(direct)
+    repo_root = find_repo_root(target)
+    default_root = repo_root / "planning"
+    if is_planning_root(default_root):
+        nested_roots = find_nested_descendant_plan_roots(default_root)
+        if nested_roots:
+            raise ValueError("Mixed plan layout is not supported under planning/. Migrate the root project before keeping nested project roots beside it.")
+        return [default_root]
+
+    return find_nested_plan_roots(default_root)
 
 
 def find_nested_descendant_plan_roots(search_root: Path) -> list[Path]:
@@ -630,13 +638,16 @@ def is_planning_root(target: Path) -> bool:
 
 def find_repo_root(start: Path) -> Path:
     current = start
+    nearest_git_root: Path | None = None
     while True:
-        if (current / ".git").exists() or (current / ".psm" / "manifest.json").exists():
+        if (current / ".psm" / "manifest.json").exists():
             return current
+        if nearest_git_root is None and (current / ".git").exists():
+            nearest_git_root = current
         if current.name == "planning":
             return current.parent
         if current.parent == current:
-            return start.parent
+            return nearest_git_root or start.parent
         current = current.parent
 
 
