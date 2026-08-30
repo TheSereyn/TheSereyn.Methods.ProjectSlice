@@ -34,7 +34,7 @@ test("inspect can read a local installable package source", () => {
     const result = runCli(["inspect", source]);
 
     assert.equal(result.status, 0, result.stderr || result.stdout);
-    assert.match(result.stdout, /@thesereyn\/psm v0\.1\.0-alpha\.1/);
+    assert.match(result.stdout, /@thesereyn\/psm v0\.1\.0-alpha\.2/);
     assert.match(result.stdout, /Managed assets: 7/);
     assert.match(result.stdout, /Plan templates: 1/);
 });
@@ -106,15 +106,15 @@ test("update refreshes a local path package from its source", () => {
     const sourcePrompt = path.join(source, ".github", "prompts", "project-status.prompt.md");
     const sourceToolkit = path.join(source, "toolkit.yaml");
     writeFileSync(sourcePrompt, `${readFileSync(sourcePrompt, "utf8")}\nUpdated from source package.\n`, "utf8");
-    writeFileSync(sourceToolkit, readFileSync(sourceToolkit, "utf8").replace("version: 0.1.0-alpha.1", "version: 0.1.0-alpha.2"), "utf8");
+    writeFileSync(sourceToolkit, readFileSync(sourceToolkit, "utf8").replace("version: 0.1.0-alpha.2", "version: 0.1.0-alpha.3"), "utf8");
 
     const updateResult = runCli(["update", target]);
     assert.equal(updateResult.status, 0, updateResult.stderr || updateResult.stdout);
-    assert.match(updateResult.stdout, /Updated package @thesereyn\/psm to v0\.1\.0-alpha\.2/);
+    assert.match(updateResult.stdout, /Updated package @thesereyn\/psm to v0\.1\.0-alpha\.3/);
 
     const targetPrompt = readFileSync(path.join(target, ".github", "prompts", "project-status.prompt.md"), "utf8");
     assert.match(targetPrompt, /Updated from source package\./);
 
     const lock = JSON.parse(readFileSync(path.join(target, ".psm", "lock.json"), "utf8"));
-    assert.equal(lock.packages["@thesereyn/psm"].version, "0.1.0-alpha.2");
+    assert.equal(lock.packages["@thesereyn/psm"].version, "0.1.0-alpha.3");
 });

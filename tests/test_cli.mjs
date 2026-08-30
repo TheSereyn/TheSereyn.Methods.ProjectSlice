@@ -33,6 +33,7 @@ test("init bootstraps a repository and doctor validates it", () => {
 
     const initResult = runCli(["init", target, "--name", "Demo Project"]);
     assert.equal(initResult.status, 0, initResult.stderr || initResult.stdout);
+    assert.match(initResult.stdout, /From .*demo-project, run python3 scripts\/psm\/validate_psm\.py validate planning --strict/);
     assert.ok(existsSync(path.join(target, "planning", "PROJECT.md")));
     assert.ok(existsSync(path.join(target, ".psm", "manifest.json")));
     assert.ok(existsSync(path.join(target, "scripts", "psm", "validate_psm.py")));
@@ -68,6 +69,44 @@ test("init preserves an existing copilot instructions file by default", () => {
     assert.match(doctorResult.stdout, /WARN  copilot instructions merge required/);
 });
 
+test("init merge appends one managed block and cleans up stale merge snippets", () => {
+    const sandboxRoot = mkdtempSync(path.join(tmpdir(), "psm-instructions-merge-"));
+    const target = path.join(sandboxRoot, "existing-project");
+    const instructionsPath = path.join(target, ".github", "copilot-instructions.md");
+    const snippetPath = path.join(target, ".psm", "copilot-instructions.snippet.md");
+
+    mkdirSync(path.join(target, ".git"), { recursive: true });
+    mkdirSync(path.join(target, ".github"), { recursive: true });
+    writeFileSync(instructionsPath, "Existing repo instructions.\n", "utf8");
+
+    const preserveResult = runCli(["init", target, "--name", "Existing Project"]);
+    assert.equal(preserveResult.status, 0, preserveResult.stderr || preserveResult.stdout);
+    assert.ok(existsSync(snippetPath));
+
+    const mergeResult = runCli(["init", target, "--name", "Existing Project", "--instructions-mode", "merge"]);
+    assert.equal(mergeResult.status, 0, mergeResult.stderr || mergeResult.stdout);
+
+    const mergedInstructions = readFileSync(instructionsPath, "utf8");
+    assert.match(mergedInstructions, /^Existing repo instructions\./);
+    assert.equal((mergedInstructions.match(/PSM-INSTRUCTIONS:BEGIN/g) ?? []).length, 1);
+    assert.equal(existsSync(snippetPath), false);
+
+    const doctorAfterMerge = runCli(["doctor", target]);
+    assert.equal(doctorAfterMerge.status, 0, doctorAfterMerge.stderr || doctorAfterMerge.stdout);
+    assert.doesNotMatch(doctorAfterMerge.stdout, /copilot instructions merge required/);
+
+    writeFileSync(snippetPath, "stale merge artifact\n", "utf8");
+    const preserveAfterMerge = runCli(["init", target, "--name", "Existing Project"]);
+    assert.equal(preserveAfterMerge.status, 0, preserveAfterMerge.stderr || preserveAfterMerge.stdout);
+    assert.equal(existsSync(snippetPath), false);
+
+    const mergeAgain = runCli(["init", target, "--name", "Existing Project", "--instructions-mode", "merge"]);
+    assert.equal(mergeAgain.status, 0, mergeAgain.stderr || mergeAgain.stdout);
+
+    const mergedAgainInstructions = readFileSync(instructionsPath, "utf8");
+    assert.equal((mergedAgainInstructions.match(/PSM-INSTRUCTIONS:BEGIN/g) ?? []).length, 1);
+});
+
 test("CLI exposes status, trace, and milestone for an example fixture", () => {
     const fixtureRoot = path.join(repoRoot, "examples", "local-first-documents");
 
@@ -91,6 +130,7 @@ test("init supports an alternate plan root under planning and validates it", () 
 
     const initResult = runCli(["init", target, "--planning-root", "planning/site-content", "--name", "Site Content"]);
     assert.equal(initResult.status, 0, initResult.stderr || initResult.stdout);
+    assert.match(initResult.stdout, /validate planning\/site-content --strict/);
     assert.ok(existsSync(path.join(target, "planning", "site-content", "PROJECT.md")));
     assert.equal(existsSync(path.join(target, "planning", "PROJECT.md")), false);
 

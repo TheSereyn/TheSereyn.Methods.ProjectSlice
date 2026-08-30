@@ -37,7 +37,7 @@ These files are created from templates during bootstrap and then become part of 
 
 The installer should not silently overwrite these artifacts once they have been edited.
 
-If `.github/copilot-instructions.md` already exists, the default install mode preserves it and writes a merge-ready PSM snippet to `.psm/copilot-instructions.snippet.md` instead of editing the file.
+If `.github/copilot-instructions.md` already exists, the default install mode preserves it and writes a merge-ready PSM snippet to `.psm/copilot-instructions.snippet.md` instead of editing the file. Once the managed PSM block is merged, or a later run finds the same managed block already present, PSM removes that temporary snippet.
 
 ## Multi-plan layout
 

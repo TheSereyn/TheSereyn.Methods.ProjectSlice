@@ -18,6 +18,19 @@ This repository supports both documentation-led adoption and installer-led adopt
 5. Open the target repository and fill in the active plan root `PROJECT.md`, `ROADMAP.md`, and the starter slice package.
 6. Run `node bin/psm.js validate /path/to/repo --strict`.
 
+## npm quick start
+
+If you want to bootstrap directly from the published package, inspect the bundle, initialize the target repository in place, then validate with the installed validator:
+
+```bash
+npx @thesereyn/psm@alpha inspect
+cd /path/to/repo
+npx @thesereyn/psm@alpha init
+python3 scripts/psm/validate_psm.py validate planning --strict
+```
+
+`init` defaults to the current working directory. If you want to initialize another repository or set a friendly project title explicitly, use `npx @thesereyn/psm@alpha init ../repo --name "Your Project"`.
+
 Inside a bootstrapped target repository, you can use the installed validator directly:
 
 ```bash

@@ -71,7 +71,8 @@ Prerelease releases publish to the dist-tag that matches the prerelease channel,
 
 ## Publish examples
 
-- GitHub release tag `0.1.0-alpha.1` publishes npm version `0.1.0-alpha.0` with dist-tag `alpha`.
+- GitHub release tag `v0.1.0-alpha.0` publishes npm version `0.1.0-alpha.0` with dist-tag `alpha`.
+- GitHub release tag `v0.1.0-alpha.2` publishes npm version `0.1.0-alpha.2` with dist-tag `alpha`.
 - GitHub release tag `v0.1.0-alpha.1` publishes npm version `0.1.0-alpha.1` with dist-tag `alpha`.
 - GitHub release tag `v0.1.0-beta.1` publishes npm version `0.1.0-beta.1` with dist-tag `beta`.
 - GitHub release tag `v0.1.0-rc.1` publishes npm version `0.1.0-rc.1` with dist-tag `rc`.

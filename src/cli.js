@@ -141,7 +141,7 @@ async function initProject(io, args) {
         io.log("Next steps:");
         io.log(`  1. Fill in ${result.planningRoot}/PROJECT.md with the real project intent.`);
         io.log(`  2. Review ${result.planningRoot}/ROADMAP.md and the starter slice package.`);
-        io.log(`  3. Run node bin/psm.js validate ${targetRoot} --planning-root ${result.planningRoot} --strict`);
+        io.log(`  3. From ${targetRoot}, run python3 scripts/psm/validate_psm.py validate ${result.planningRoot} --strict`);
     }
 
     return failures === 0 ? 0 : 1;
@@ -955,6 +955,7 @@ async function createInstructionsPlan(toolkit, sourceRoot, targetRoot, replaceme
             conflicts: [],
             writes: [{ destination: instructionsPath, content: templateContent, encoding: "utf8" }],
             snippetWrites: [],
+            deletes: await createInstructionsCleanupDeletes(snippetPath),
             state: {
                 file: toolkit.instructions.file,
                 mode: "created",
@@ -978,6 +979,7 @@ async function createInstructionsPlan(toolkit, sourceRoot, targetRoot, replaceme
             conflicts: [],
             writes: [],
             snippetWrites,
+            deletes: needsManualMerge ? [] : await createInstructionsCleanupDeletes(snippetPath),
             state: {
                 file: toolkit.instructions.file,
                 mode: "preserve",
@@ -996,6 +998,7 @@ async function createInstructionsPlan(toolkit, sourceRoot, targetRoot, replaceme
             conflicts: [],
             writes,
             snippetWrites: [],
+            deletes: await createInstructionsCleanupDeletes(snippetPath),
             state: {
                 file: toolkit.instructions.file,
                 mode: "merge",
@@ -1009,6 +1012,7 @@ async function createInstructionsPlan(toolkit, sourceRoot, targetRoot, replaceme
         conflicts: [],
         writes: hasSameTemplate ? [] : [{ destination: instructionsPath, content: templateContent, encoding: "utf8" }],
         snippetWrites: [],
+        deletes: await createInstructionsCleanupDeletes(snippetPath),
         state: {
             file: toolkit.instructions.file,
             mode: "overwrite",
@@ -1023,6 +1027,7 @@ function createNoopInstructionsPlan() {
         conflicts: [],
         writes: [],
         snippetWrites: [],
+        deletes: [],
         state: {
             file: null,
             mode: "none",
@@ -1032,10 +1037,24 @@ function createNoopInstructionsPlan() {
     };
 }
 
+async function createInstructionsCleanupDeletes(snippetPath) {
+    return await exists(snippetPath) ? [snippetPath] : [];
+}
+
 async function applyInstructionsPlan(plan) {
     for (const write of [...plan.writes, ...plan.snippetWrites]) {
         await mkdir(path.dirname(write.destination), { recursive: true });
         await writeFile(write.destination, write.content, { encoding: write.encoding });
+    }
+
+    for (const filePath of plan.deletes ?? []) {
+        try {
+            await unlink(filePath);
+        } catch (error) {
+            if (error?.code !== "ENOENT") {
+                throw error;
+            }
+        }
     }
 }
 
