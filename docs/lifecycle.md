@@ -62,11 +62,19 @@ When a repository started as a single-project installation rooted at `planning/`
 
 Crossing from one project root to two also enables the recorded `multiProject` capability in `.psm/manifest.json`. If the current package source defines capability-managed files for that capability, `add-project` installs them during the same transition.
 
+In the current package, those capability-managed files are:
+
+- `.github/agents/project-coordinator.agent.md`;
+- `.github/prompts/work-on-project.prompt.md`;
+- `.github/skills/psm-select-project-context/`.
+
 ### `enable multi-project`
 
 `enable multi-project [target]` upgrades an existing multi-root host that does not yet have recorded multi-project capability state.
 
 It records the capability in `.psm/manifest.json`, installs any capability-managed files supplied by the current package source, and performs the same `planning/` to `planning/<project-key>/` migration when a legacy root layout still needs it.
+
+If the transition cannot complete, the lifecycle tooling rolls back migrated roots, newly created plan roots, and capability-managed file writes rather than leaving a partially enabled installation.
 
 ### `disable multi-project`
 

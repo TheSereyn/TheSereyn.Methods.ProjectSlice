@@ -107,6 +107,8 @@ node bin/psm.js enable multi-project ../my-repository
 node bin/psm.js disable multi-project ../my-repository
 ```
 
+Once multi-project is enabled, the installed repository also receives a `/work-on-project` prompt that routes through the multi-project coordinator before project-local work begins.
+
 Check managed-file drift and reapply package-managed assets:
 
 ```bash

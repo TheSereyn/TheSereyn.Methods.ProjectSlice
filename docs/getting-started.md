@@ -72,6 +72,8 @@ The packaged prompt shortcuts can help with common entry points once the reposit
 - `/implement-active-slice`
 - `/triage-inbox`
 
+After multi-project is enabled, `/work-on-project` becomes the multi-project entry point.
+
 ## Multi-plan repositories
 
 Keep plan roots visible under `planning/`.
@@ -89,6 +91,14 @@ If you already have more than one plan root but no recorded multi-project capabi
 ```bash
 node bin/psm.js enable multi-project ../repo
 ```
+
+When the `multiProject` capability is enabled, the installed repository receives:
+
+- the `psm-project-coordinator` agent;
+- the `/work-on-project` prompt;
+- the `psm-select-project-context` skill used to resolve one project before PM work begins.
+
+On surfaces that do not support structured questions or visible handoffs, the coordinator falls back to ordinary chat questions and a user-visible portfolio response rather than silently choosing a project.
 
 If you later archive back down to one plan root, disable the capability state explicitly. This does not prune capability-managed files automatically:
 

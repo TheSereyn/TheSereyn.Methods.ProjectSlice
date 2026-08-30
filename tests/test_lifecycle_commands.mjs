@@ -29,22 +29,6 @@ function copyLifecycleSource(prefix = "psm-lifecycle-source-") {
     return source;
 }
 
-function addMultiProjectCapabilityToSource(source) {
-    mkdirSync(path.join(source, "capabilities", "multi-project", ".github", "agents"), { recursive: true });
-    mkdirSync(path.join(source, "capabilities", "multi-project", ".github", "prompts"), { recursive: true });
-    mkdirSync(path.join(source, "capabilities", "multi-project", ".github", "skills", "psm-select-project-context"), { recursive: true });
-    writeFileSync(path.join(source, "capabilities", "multi-project", ".github", "agents", "project-coordinator.agent.md"), "---\nname: \"psm-project-coordinator\"\n---\n\n# Coordinator\n", "utf8");
-    writeFileSync(path.join(source, "capabilities", "multi-project", ".github", "prompts", "work-on-project.prompt.md"), "---\nagent: psm-project-coordinator\ndescription: Work on a selected project.\n---\n", "utf8");
-    writeFileSync(path.join(source, "capabilities", "multi-project", ".github", "skills", "psm-select-project-context", "SKILL.md"), "# Select project context\n", "utf8");
-
-    const toolkitPath = path.join(source, "toolkit.yaml");
-    writeFileSync(
-        toolkitPath,
-        `${readFileSync(toolkitPath, "utf8")}\ncapabilities:\n  multiProject:\n    activation: explicit\n    repoManaged:\n      - source: capabilities/multi-project/.github/agents/project-coordinator.agent.md\n        destination: .github/agents/project-coordinator.agent.md\n      - source: capabilities/multi-project/.github/prompts/work-on-project.prompt.md\n        destination: .github/prompts/work-on-project.prompt.md\n      - source: capabilities/multi-project/.github/skills/psm-select-project-context\n        destination: .github/skills/psm-select-project-context\n`,
-        "utf8"
-    );
-}
-
 test("inspect can read a local installable package source", () => {
     const source = copyLifecycleSource();
     const result = runCli(["inspect", source]);
@@ -172,7 +156,6 @@ test("add-project previews and adds a second plan root while enabling multi-proj
 
 test("add-project installs capability-managed files when multi-project becomes enabled", () => {
     const source = copyLifecycleSource();
-    addMultiProjectCapabilityToSource(source);
     const target = makeTargetRepo();
 
     const addResult = runCli(["add", source, target, "--include-plan", "--name", "Lifecycle Demo"]);
@@ -192,7 +175,6 @@ test("add-project installs capability-managed files when multi-project becomes e
 
 test("enable multi-project upgrades an existing multi-root host and installs capability-managed files", () => {
     const source = copyLifecycleSource();
-    addMultiProjectCapabilityToSource(source);
     const target = makeTargetRepo();
 
     const firstAdd = runCli(["add", source, target, "--include-plan", "--name", "Lifecycle Demo"]);
@@ -236,7 +218,6 @@ test("enable multi-project upgrades an existing multi-root host and installs cap
 
 test("diff and sync include capability-managed files after multi-project is enabled", () => {
     const source = copyLifecycleSource();
-    addMultiProjectCapabilityToSource(source);
     const target = makeTargetRepo();
 
     const addResult = runCli(["add", source, target, "--include-plan", "--name", "Lifecycle Demo"]);
@@ -261,7 +242,6 @@ test("diff and sync include capability-managed files after multi-project is enab
 
 test("disable multi-project updates manifest state without pruning capability-managed files", () => {
     const source = copyLifecycleSource();
-    addMultiProjectCapabilityToSource(source);
     const target = makeTargetRepo();
 
     const addResult = runCli(["add", source, target, "--include-plan", "--planning-root", "planning/project-one", "--name", "Project One"]);
@@ -288,7 +268,6 @@ test("disable multi-project updates manifest state without pruning capability-ma
 
 test("add-project rolls back migration and new files when the transition fails", () => {
     const source = copyLifecycleSource();
-    addMultiProjectCapabilityToSource(source);
     const target = makeTargetRepo();
 
     const addResult = runCli(["add", source, target, "--include-plan", "--name", "Lifecycle Demo"]);
@@ -309,7 +288,6 @@ test("add-project rolls back migration and new files when the transition fails",
 
 test("disable multi-project rejects mixed root and nested plan layouts", () => {
     const source = copyLifecycleSource();
-    addMultiProjectCapabilityToSource(source);
     const target = makeTargetRepo();
 
     const addResult = runCli(["add", source, target, "--include-plan", "--planning-root", "planning/project-one", "--name", "Project One"]);
@@ -349,7 +327,6 @@ test("add-project is idempotent when the target plan root already exists", () =>
 
 test("disable then sync preserves stale capability hashes for later prune", () => {
     const source = copyLifecycleSource();
-    addMultiProjectCapabilityToSource(source);
     const target = makeTargetRepo();
 
     const addResult = runCli(["add", source, target, "--include-plan", "--planning-root", "planning/project-one", "--name", "Project One"]);
@@ -380,7 +357,6 @@ test("disable then sync preserves stale capability hashes for later prune", () =
 
 test("enable multi-project fails when a recorded plan root is missing on disk", () => {
     const source = copyLifecycleSource();
-    addMultiProjectCapabilityToSource(source);
     const target = makeTargetRepo();
 
     const firstAdd = runCli(["add", source, target, "--include-plan", "--planning-root", "planning/project-one", "--name", "Project One"]);
@@ -398,7 +374,6 @@ test("enable multi-project fails when a recorded plan root is missing on disk", 
 
 test("disable multi-project fails when no plan roots remain on disk", () => {
     const source = copyLifecycleSource();
-    addMultiProjectCapabilityToSource(source);
     const target = makeTargetRepo();
 
     const addResult = runCli(["add", source, target, "--include-plan", "--planning-root", "planning/project-one", "--name", "Project One"]);
@@ -418,8 +393,6 @@ test("disable multi-project fails when no plan roots remain on disk", () => {
 test("multi-project transitions normalize plan roots across all installed packages", () => {
     const sourceOne = copyLifecycleSource("psm-lifecycle-source-one-");
     const sourceTwo = copyLifecycleSource("psm-lifecycle-source-two-");
-    addMultiProjectCapabilityToSource(sourceOne);
-    addMultiProjectCapabilityToSource(sourceTwo);
     writeFileSync(path.join(sourceTwo, "toolkit.yaml"), readFileSync(path.join(sourceTwo, "toolkit.yaml"), "utf8").replace("name: @thesereyn/psm", "name: @thesereyn/psm-extra"), "utf8");
     const target = makeTargetRepo();
 

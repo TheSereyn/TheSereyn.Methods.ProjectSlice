@@ -14,7 +14,8 @@ This repository is a partial implementation of the Project Slice Method technica
 - Local-source lifecycle commands for `inspect`, `add`, `sync`, `update`, and `diff`, backed by package-aware install-state tracking, baseline-hash local-edit preservation, and `--force`, `--dry-run`, and `--prune` controls.
 - Slice 1 project descriptor discovery through `psm projects`, including `project_key`, `implementation_roots`, recursive multi-root discovery, and cross-root validation.
 - Slice 2 multi-project lifecycle transition infrastructure, including `add-project`, explicit `enable` and `disable` flows for `multi-project`, manifest-owned capability state, automatic migration from `planning/` to `planning/<project-key>/`, and capability-aware lifecycle refresh when a package source defines optional multi-project assets.
-- Slice 3 contract-level role boundaries, including a fixture-first Project Coordinator contract, a project-scoped Project Manager contract for resolved multi-project work, and specialist selected-scope rules that require inherited `plan_root` and `implementation_roots` context.
+- Slice 3 contract-level role boundaries, including a packaged Project Coordinator contract, a project-scoped Project Manager contract for resolved multi-project work, and specialist selected-scope rules that require inherited `plan_root` and `implementation_roots` context.
+- Slice 4 packaged multi-project entry assets, including the `psm-project-coordinator` capability asset, the `work-on-project` prompt, and the `psm-select-project-context` skill, plus lifecycle and contract tests that install and verify them.
 - Repo-local agents, skills, and instructions that express the intended roles and workflows.
 - Safe handling for existing `.github/copilot-instructions.md` files.
 - Support for more than one plan root by keeping plans under `planning/<plan-slug>/`.
@@ -27,7 +28,6 @@ This repository is a partial implementation of the Project Slice Method technica
 
 - remote GitHub-source package installation;
 - MCP integrations or external projections such as GitHub Issues synchronization.
-- checked-in capability-managed coordinator, prompt, and selection-skill assets for installed hosts;
 - interactive coordinator, handoff, and project-context runtime surfaces from later multi-project slices.
 
 ## Plan and metadata locations
@@ -79,11 +79,23 @@ Slice 3 is now partially implemented at the repository-contract level.
 
 The current state is:
 
-- a fixture-only Project Coordinator contract defines installation-wide selection and portfolio responsibilities;
+- a packaged Project Coordinator contract defines installation-wide selection and portfolio responsibilities;
 - the shipped Project Manager contract is now explicitly project-scoped after context resolution in a multi-project host;
 - specialist contracts now require inherited selected-scope context instead of rediscovering project scope from repository-wide state.
 
-The packaged coordinator agent, selection skill, and visible runtime handoff are still deferred to later slices.
+The visible runtime handoff and retained interactive project context are still deferred to later slices.
+
+## Slice 4 status
+
+Slice 4 is now partially implemented at the package and contract level.
+
+The current state is:
+
+- the `multiProject` capability now ships a real coordinator agent asset, `work-on-project` prompt, and `psm-select-project-context` skill;
+- lifecycle transitions install, refresh, and retain those capability-managed assets through `add-project`, `enable`, `sync`, `update`, and `disable`;
+- contract and fixture tests cover explicit, ambiguous, portfolio, and qualified-ID entry behavior.
+
+Live VS Code verification of prompt-to-coordinator activation, structured-question UI, visible coordinator-to-manager handoff, and retained PM context is still outstanding.
 
 ## Phase 6 status
 

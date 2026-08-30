@@ -1,6 +1,6 @@
 {
     "agent": "psm-project-coordinator",
-    "file": "examples/orchestration-local-first-documents/project-coordinator.agent.md",
+    "file": "capabilities/multi-project/.github/agents/project-coordinator.agent.md",
     "tools": [
         "read",
         "search",
@@ -8,7 +8,8 @@
         "execute",
         "agent"
     ],
-    "fixtureOnly": true,
+    "fixtureOnly": false,
+    "capabilityName": "multiProject",
     "handoffTarget": "psm-project-manager",
     "contextEnvelopeFields": [
         "project_key",

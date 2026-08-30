@@ -1,0 +1,55 @@
+{
+    "agentFile": "capabilities/multi-project/.github/agents/project-coordinator.agent.md",
+    "promptFile": "capabilities/multi-project/.github/prompts/work-on-project.prompt.md",
+    "skillFile": "capabilities/multi-project/.github/skills/psm-select-project-context/SKILL.md",
+    "promptAgent": "psm-project-coordinator",
+    "promptTools": [
+        "read",
+        "search",
+        "agent",
+        "vscode/askQuestions"
+    ],
+    "toolkitEntries": [
+        {
+            "source": "capabilities/multi-project/.github/agents/project-coordinator.agent.md",
+            "destination": ".github/agents/project-coordinator.agent.md"
+        },
+        {
+            "source": "capabilities/multi-project/.github/prompts/work-on-project.prompt.md",
+            "destination": ".github/prompts/work-on-project.prompt.md"
+        },
+        {
+            "source": "capabilities/multi-project/.github/skills/psm-select-project-context",
+            "destination": ".github/skills/psm-select-project-context"
+        }
+    ],
+    "contextEnvelopeFields": [
+        "project_key",
+        "plan_root",
+        "implementation_roots",
+        "workflow",
+        "slice_id"
+    ],
+    "promptMustMention": [
+        "Run `psm-select-project-context`.",
+        "Discover projects before asking questions.",
+        "Use `vscode/askQuestions`",
+        "Fall back to ordinary chat questions",
+        "visible handoff to `psm-project-manager`",
+        "Do not use a hidden subagent"
+    ],
+    "skillSections": [
+        "Inputs",
+        "Outputs",
+        "Procedure",
+        "Escalate when"
+    ],
+    "skillMustMention": [
+        "An explicit project key or plan-root path in the request",
+        "The only discovered project, when exactly one exists",
+        "Use `vscode/askQuestions` when available",
+        "fall back to ordinary chat questions",
+        "visible handoff to `psm-project-manager`",
+        "resolved context envelope"
+    ]
+}

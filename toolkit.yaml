@@ -32,7 +32,13 @@ capabilities:
     activation: explicit
     suggestWhen:
       planRootsAtLeast: 2
-    repoManaged: []
+    repoManaged:
+      - source: capabilities/multi-project/.github/agents/project-coordinator.agent.md
+        destination: .github/agents/project-coordinator.agent.md
+      - source: capabilities/multi-project/.github/prompts/work-on-project.prompt.md
+        destination: .github/prompts/work-on-project.prompt.md
+      - source: capabilities/multi-project/.github/skills/psm-select-project-context
+        destination: .github/skills/psm-select-project-context
 
 planOwned:
   - source: templates/project/planning

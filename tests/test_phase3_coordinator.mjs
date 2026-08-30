@@ -59,7 +59,7 @@ function sectionExists(content, heading) {
     return new RegExp(`^## ${heading.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\b`, "m").test(content);
 }
 
-test("project coordinator exposes a fixture-first Slice 3 contract", () => {
+test("project coordinator exposes the packaged multi-project contract", () => {
     const content = readContract(contract.file);
     const frontmatter = parseFrontmatter(content);
     const requiredSections = [
@@ -98,9 +98,10 @@ test("project coordinator exposes a fixture-first Slice 3 contract", () => {
     }
 });
 
-test("project coordinator remains a fixture-only contract until capability-managed assets are shipped", () => {
-    assert.equal(contract.fixtureOnly, true);
-    assert.ok(contract.file.startsWith("examples/"), "Coordinator contract should stay outside shipped .github assets for now");
+test("project coordinator ships as a capability-managed asset instead of a base install asset", () => {
+    assert.equal(contract.fixtureOnly, false);
+    assert.equal(contract.capabilityName, "multiProject");
+    assert.ok(contract.file.startsWith("capabilities/multi-project/.github/agents/"), "Coordinator contract should be packaged as a multi-project capability asset");
     assert.equal(existsSync(path.join(repoRoot, ".github", "agents", "project-coordinator.agent.md")), false);
     assert.equal(contract.handoffTarget, "psm-project-manager");
 
