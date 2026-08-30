@@ -1,10 +1,10 @@
-name: @thesereyn/project-slice-method
-version: 0.1.0
+name: @thesereyn/psm
+version: 0.1.0-alpha.0
 methodVersion: 0.2
 description: Bootstrap Project Slice Method planning artifacts, Copilot customizations, and structural validation into a Git repository.
 
 install:
-  primary: npx @thesereyn/project-slice-method init
+  primary: npx @thesereyn/psm@alpha init
   local: node bin/psm.js init
 
 instructions:

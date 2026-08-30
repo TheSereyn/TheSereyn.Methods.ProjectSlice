@@ -3,7 +3,7 @@ type: project
 id: PROJECT
 method: psm
 method_version: {{METHOD_VERSION}}
-initialized_by: @thesereyn/project-slice-method@{{PACKAGE_VERSION}}
+initialized_by: @thesereyn/psm@{{PACKAGE_VERSION}}
 ---
 
 # {{PROJECT_NAME}}

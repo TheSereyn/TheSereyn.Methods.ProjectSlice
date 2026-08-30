@@ -31,7 +31,7 @@ There are three supported entry points.
 
 1. Read the method through [docs/methodology.md](docs/methodology.md) and [docs/getting-started.md](docs/getting-started.md).
 2. Evaluate the bundle locally with `node bin/psm.js inspect` and bootstrap a test repository with `node bin/psm.js init /path/to/repo --name "My Project"`.
-3. Use the published installer path once the npm package is released: `npx @thesereyn/project-slice-method init`.
+3. Use the published installer path while the package is on the `alpha` dist-tag: `npx @thesereyn/psm@alpha init`. Once a stable release is promoted to `latest`, use `npx @thesereyn/psm init`.
 
 This repository remains readable on its own. The CLI copies the packaged assets into a target repository and records managed state in `.psm/`.
 
@@ -138,6 +138,7 @@ npm test
 - [docs/artifact-model.md](docs/artifact-model.md): managed versus project-owned files and install state.
 - [docs/implementation-status.md](docs/implementation-status.md): which parts of the technical spec are implemented today.
 - [docs/lifecycle.md](docs/lifecycle.md): local-source package lifecycle behavior, safety rules, and current limitations.
+- [docs/releasing.md](docs/releasing.md): npm version policy, release tags, Trusted Publisher setup, and automated publishing rules.
 - [.github/agents](.github/agents): reusable agent roles for PSM repositories.
 - [.github/hooks](.github/hooks): optional repository-level automation hooks for session start, command guarding, and stop-time validation.
 - [.github/skills](.github/skills): reusable planning and execution procedures.
@@ -145,6 +146,7 @@ npm test
 - [templates/project](templates/project): starter repository artifacts copied by `init`.
 - [scripts/psm/validate_psm.py](scripts/psm/validate_psm.py): structural validator.
 - [scripts/psm/hook_runner.mjs](scripts/psm/hook_runner.mjs): hook helper used by the repository automation files.
+- [scripts/psm/release_publish.mjs](scripts/psm/release_publish.mjs): release-tag and package-metadata validator used by the publish workflow.
 - [examples/local-first-documents](examples/local-first-documents): valid worked example fixture.
 - [examples/orchestration-local-first-documents](examples/orchestration-local-first-documents): role-by-role workflow fixture, specialist-agent contracts, Project Manager routing contracts, and phase 4 to 6 boundary audits.
 

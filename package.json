@@ -1,17 +1,24 @@
 {
-    "name": "@thesereyn/project-slice-method",
-    "version": "0.1.0",
+    "name": "@thesereyn/psm",
+    "version": "0.1.0-alpha.0",
     "description": "Project Slice Method repository bootstrapper, Copilot customization bundle, and planning validator.",
+    "license": "MIT",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/TheSereyn/TheSereyn.Methods.ProjectSlice.git"
+    },
     "type": "module",
     "bin": {
-        "psm": "./bin/psm.js",
-        "project-slice-method": "./bin/psm.js"
+        "psm": "bin/psm.js"
     },
     "scripts": {
-        "test": "node --test tests/test_cli.mjs tests/test_validate_psm.mjs tests/test_orchestration_fixture.mjs tests/test_phase3_skills.mjs tests/test_phase4_agents.mjs tests/test_phase5_project_manager.mjs tests/test_phase6_automation.mjs tests/test_lifecycle_commands.mjs"
+        "test": "node --test tests/test_cli.mjs tests/test_validate_psm.mjs tests/test_orchestration_fixture.mjs tests/test_phase3_skills.mjs tests/test_phase4_agents.mjs tests/test_phase5_project_manager.mjs tests/test_phase6_automation.mjs tests/test_lifecycle_commands.mjs tests/test_release_publish.mjs"
     },
     "engines": {
         "node": ">=20"
+    },
+    "publishConfig": {
+        "access": "public"
     },
     "files": [
         "bin",

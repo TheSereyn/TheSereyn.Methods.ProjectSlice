@@ -83,10 +83,16 @@ node bin/psm.js init ../repo --instructions-mode merge
 
 ## Installer status
 
-The published installer command will be:
+The current prerelease installer command is:
 
 ```bash
-npx @thesereyn/project-slice-method init
+npx @thesereyn/psm@alpha init
+```
+
+Once a stable release is published on the `latest` dist-tag, the installer command becomes:
+
+```bash
+npx @thesereyn/psm init
 ```
 
 Until the package is published, this repository can be used directly:
